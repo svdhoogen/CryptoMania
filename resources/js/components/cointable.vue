@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody id="table-body-coin">
-                <tr v-for="coin in data" v-bind:key="coin.rank" v-on:click="">
+                <tr v-for="coin in coins" v-bind:key="coin.rank" @click="ShowGraph(coin)">
                     <td>{{ coin.rank }}</td>
                     <td>{{ coin.name }} </td>
                     <td>{{ coin.symbol }}</td>
@@ -23,8 +23,8 @@
             </tbody>
         </table>
 
-        <div class="d-flex justify-content-center">
-            <div v-if="!data.length" class="spinner-border text-success" role="status">
+        <div class="d-flex justify-content-center" v-if="!coins.length">
+            <div class="spinner-border text-success" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
@@ -33,32 +33,33 @@
 
 <script>
     import Axios from "axios";
-
+    
     export default {
         name: "cointable",
 
-        props: {
-            source: String
-        },
-
         data() {
             return {
-                data: []
+                coins: []
             }
         },
 
         methods: {
             GetCoinData () {
                 Axios.get("https://api.coincap.io/v2/assets").then((response) => {
-                    this.data = response.data.data;
-                    console.log(this.data);
+                    this.coins = response.data.data;
+                    console.log(this.coins);
 
-                    this.data.forEach(coin => {
+                    this.coins.forEach(coin => {
                         coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
                         coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
                         coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
                     });
                 });
+            },
+
+            ShowGraph(coin) {
+                console.log("Raising show graph event for coin: " + coin);
+                Event.$emit('showGraph', coin);
             }
         },
 
