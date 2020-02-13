@@ -1,41 +1,44 @@
 <template>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>Symbol</th>
-                <th>Name</th>
-                <th>Supply</th>
-                <th>Max supply</th>
-                <th>Market cap $</th>
-                <th>Volume $ hr</th>
-                <th>Price $</th>
-                <th>% Change 24 hr</th>
-                <th>Vwap 24 hr</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="item in data" v-bind:key="item.rank">
-                <td>{{ item.rank }}</td>
-                <td>{{ item.symbol }}</td>
-                <td>{{ item.name }} </td>
-                <td>{{ item.supply}} </td>
-                <td>{{ item.maxSupply}} </td>
-                <td>{{ item.marketCapUsd }}</td>
-                <td>{{ item.volumeUsd24Hr }}</td>
-                <td>{{ item.priceUsd }}</td>
-                <td>{{ item.changePercent24Hr }}</td>
-                <td>{{ item.vwap24Hr }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div>
+        <table class="bg-light table table-bordered table-hover table-coin">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center bg-success border-green">Rank</th>
+                    <th class="text-center bg-success border-green">Name</th>
+                    <th class="text-center bg-success border-green">Symbol</th>
+                    <th class="text-center bg-success border-green">Price $</th>
+                    <th class="text-center bg-success border-green">Market cap $</th>
+                    <th class="text-center bg-success border-green">% 24hr</th>
+                </tr>
+            </thead>
+            <tbody id="table-body-coin">
+                <tr v-for="coin in data" v-bind:key="coin.rank" v-on:click="">
+                    <td>{{ coin.rank }}</td>
+                    <td>{{ coin.name }} </td>
+                    <td>{{ coin.symbol }}</td>
+                    <td>{{ coin.priceUsd }}</td>
+                    <td>{{ coin.marketCapUsd }}</td>
+                    <td v-bind:class="{ 'text-success': coin.changePercent24Hr > 0, 'text-danger': coin.changePercent24Hr < 0 }">{{ coin.changePercent24Hr }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-center">
+            <div v-if="!data.length" class="spinner-border text-success" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
+    import Axios from "axios";
+
     export default {
         name: "cointable",
 
         props: {
+            source: String
         },
 
         data() {
@@ -46,10 +49,15 @@
 
         methods: {
             GetCoinData () {
-                axios.get("https://api.coincap.io/v2/assets").then((response) => {
-                    console.log(response.data.data);
+                Axios.get("https://api.coincap.io/v2/assets").then((response) => {
                     this.data = response.data.data;
                     console.log(this.data);
+
+                    this.data.forEach(coin => {
+                        coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
+                        coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
+                        coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
+                    });
                 });
             }
         },

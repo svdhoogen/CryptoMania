@@ -9,6 +9,8 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 //
 //
 //
@@ -42,9 +44,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "cointable",
-  props: {},
+  props: {
+    source: String
+  },
   data: function data() {
     return {
       data: []
@@ -54,10 +59,15 @@ __webpack_require__.r(__webpack_exports__);
     GetCoinData: function GetCoinData() {
       var _this = this;
 
-      axios.get("https://api.coincap.io/v2/assets").then(function (response) {
-        console.log(response.data.data);
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("https://api.coincap.io/v2/assets").then(function (response) {
         _this.data = response.data.data;
         console.log(_this.data);
+
+        _this.data.forEach(function (coin) {
+          coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
+          coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
+          coin.changePercent24Hr = parseFloat(coin.changePercent24Hr).toFixed(2);
+        });
       });
     }
   },
@@ -83,36 +93,61 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("table", { staticClass: "table" }, [
-    _vm._m(0),
-    _vm._v(" "),
+  return _c("div", [
     _c(
-      "tbody",
-      _vm._l(_vm.data, function(item) {
-        return _c("tr", { key: item.rank }, [
-          _c("td", [_vm._v(_vm._s(item.rank))]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.symbol))]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.name) + " ")]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.supply) + " ")]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.maxSupply) + " ")]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.marketCapUsd))]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.volumeUsd24Hr))]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.priceUsd))]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.changePercent24Hr))]),
-          _vm._v(" "),
-          _c("td", [_vm._v(_vm._s(item.vwap24Hr))])
-        ])
-      }),
-      0
-    )
+      "table",
+      { staticClass: "bg-light table table-bordered table-hover table-coin" },
+      [
+        _vm._m(0),
+        _vm._v(" "),
+        _c(
+          "tbody",
+          { attrs: { id: "table-body-coin" } },
+          _vm._l(_vm.data, function(coin) {
+            return _c(
+              "tr",
+              { key: coin.rank, on: { click: function($event) {} } },
+              [
+                _c("td", [_vm._v(_vm._s(coin.rank))]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(coin.name) + " ")]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(coin.symbol))]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(coin.priceUsd))]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(coin.marketCapUsd))]),
+                _vm._v(" "),
+                _c(
+                  "td",
+                  {
+                    class: {
+                      "text-success": coin.changePercent24Hr > 0,
+                      "text-danger": coin.changePercent24Hr < 0
+                    }
+                  },
+                  [_vm._v(_vm._s(coin.changePercent24Hr))]
+                )
+              ]
+            )
+          }),
+          0
+        )
+      ]
+    ),
+    _vm._v(" "),
+    _c("div", { staticClass: "d-flex justify-content-center" }, [
+      !_vm.data.length
+        ? _c(
+            "div",
+            {
+              staticClass: "spinner-border text-success",
+              attrs: { role: "status" }
+            },
+            [_c("span", { staticClass: "sr-only" }, [_vm._v("Loading...")])]
+          )
+        : _vm._e()
+    ])
   ])
 }
 var staticRenderFns = [
@@ -120,27 +155,31 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("thead", [
+    return _c("thead", { staticClass: "thead-dark" }, [
       _c("tr", [
-        _c("th", [_vm._v("Rank")]),
+        _c("th", { staticClass: "text-center bg-success border-green" }, [
+          _vm._v("Rank")
+        ]),
         _vm._v(" "),
-        _c("th", [_vm._v("Symbol")]),
+        _c("th", { staticClass: "text-center bg-success border-green" }, [
+          _vm._v("Name")
+        ]),
         _vm._v(" "),
-        _c("th", [_vm._v("Name")]),
+        _c("th", { staticClass: "text-center bg-success border-green" }, [
+          _vm._v("Symbol")
+        ]),
         _vm._v(" "),
-        _c("th", [_vm._v("Supply")]),
+        _c("th", { staticClass: "text-center bg-success border-green" }, [
+          _vm._v("Price $")
+        ]),
         _vm._v(" "),
-        _c("th", [_vm._v("Max supply")]),
+        _c("th", { staticClass: "text-center bg-success border-green" }, [
+          _vm._v("Market cap $")
+        ]),
         _vm._v(" "),
-        _c("th", [_vm._v("Market cap $")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Volume $ hr")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Price $")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("% Change 24 hr")]),
-        _vm._v(" "),
-        _c("th", [_vm._v("Vwap 24 hr")])
+        _c("th", { staticClass: "text-center bg-success border-green" }, [
+          _vm._v("% 24hr")
+        ])
       ])
     ])
   }
@@ -160,71 +199,24 @@ render._withStripped = true
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_cointable__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/cointable */ "./resources/js/components/cointable.vue");
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
-__webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var bootstrap__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bootstrap */ "./node_modules/bootstrap/dist/js/bootstrap.js");
+/* harmony import */ var bootstrap__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(bootstrap__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _components_cointable__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/cointable */ "./resources/js/components/cointable.vue");
 
-window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
-// const files = require.context('./', true, /\.vue$/i);
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
 
-window.Event = new Vue();
 
-new Vue({
+axios__WEBPACK_IMPORTED_MODULE_2___default.a.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
   el: '#root',
   components: {
-    cointable: _components_cointable__WEBPACK_IMPORTED_MODULE_0__["default"]
+    cointable: _components_cointable__WEBPACK_IMPORTED_MODULE_3__["default"]
   }
 });
-
-/***/ }),
-
-/***/ "./resources/js/bootstrap.js":
-/*!***********************************!*\
-  !*** ./resources/js/bootstrap.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-window._ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-
-window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-// import Echo from 'laravel-echo';
-// window.Pusher = require('pusher-js');
-// window.Echo = new Echo({
-//     broadcaster: 'pusher',
-//     key: process.env.MIX_PUSHER_APP_KEY,
-//     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-//     forceTLS: true
-// });
 
 /***/ }),
 
@@ -297,9 +289,9 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./resources/sass/app.scss":
+/***/ "./resources/sass/app.sass":
 /*!*********************************!*\
-  !*** ./resources/sass/app.scss ***!
+  !*** ./resources/sass/app.sass ***!
   \*********************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
@@ -310,13 +302,13 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ 0:
 /*!*************************************************************!*\
-  !*** multi ./resources/js/app.js ./resources/sass/app.scss ***!
+  !*** multi ./resources/js/app.js ./resources/sass/app.sass ***!
   \*************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! D:\Programs\laragon\www\CryptoMania\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! D:\Programs\laragon\www\CryptoMania\resources\sass\app.scss */"./resources/sass/app.scss");
+module.exports = __webpack_require__(/*! D:\Programs\laragon\www\CryptoMania\resources\sass\app.sass */"./resources/sass/app.sass");
 
 
 /***/ })
