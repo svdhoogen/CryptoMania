@@ -23,6 +23,7 @@
             </tbody>
         </table>
 
+        <!-- Loading spinner animation -->
         <div class="d-flex justify-content-center" v-if="!coins.length">
             <div class="spinner-border text-success" role="status">
                 <span class="sr-only">Loading...</span>
@@ -53,6 +54,8 @@
                         coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
                         coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
                         coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
+                        coin.volumeUsd24Hr =  parseFloat(coin.volumeUsd24Hr).toFixed(2);
+                        coin.supply =  parseFloat(coin.supply).toFixed(2);
                     });
                 });
             },

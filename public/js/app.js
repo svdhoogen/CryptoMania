@@ -32,6 +32,35 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -53,13 +82,19 @@ __webpack_require__.r(__webpack_exports__);
     },
     PresentModal: function PresentModal(coin) {
       this.coin = coin;
-      console.log("Showing graph for coin: " + coin.id);
+      console.log("Presenting modal for coin: " + coin.id);
       jquery__WEBPACK_IMPORTED_MODULE_1___default()('#modal').modal('show');
       this.GetCoinHistory();
+    },
+    ResetModal: function ResetModal() {
+      this.coin = [];
+      this.history = [];
+      console.log("Hiding modal!!!!!");
     }
   },
   mounted: function mounted() {
     Event.$on('showGraph', this.PresentModal);
+    jquery__WEBPACK_IMPORTED_MODULE_1___default()("#modal").on('hide.bs.modal', this.ResetModal);
   }
 });
 
@@ -76,6 +111,7 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+//
 //
 //
 //
@@ -129,6 +165,8 @@ __webpack_require__.r(__webpack_exports__);
           coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
           coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
           coin.changePercent24Hr = parseFloat(coin.changePercent24Hr).toFixed(2);
+          coin.volumeUsd24Hr = parseFloat(coin.volumeUsd24Hr).toFixed(2);
+          coin.supply = parseFloat(coin.supply).toFixed(2);
         });
       });
     },
@@ -166,23 +204,69 @@ var render = function() {
       attrs: { id: "modal", tabindex: "-1", role: "dialog" }
     },
     [
-      _c("div", { staticClass: "modal-dialog", attrs: { role: "document" } }, [
-        _c("div", { staticClass: "modal-content" }, [
-          _c("div", { staticClass: "modal-header" }, [
-            _vm._v(
-              "\n                " + _vm._s(_vm.coin.name) + "\n            "
-            )
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "modal-body" }, [
-            !_vm.history.length
-              ? _c("div", { staticClass: "d-flex justify-content-center" }, [
-                  _vm._m(0)
+      _c(
+        "div",
+        { staticClass: "modal-dialog modal-xl", attrs: { role: "document" } },
+        [
+          _c("div", { staticClass: "modal-content" }, [
+            _c("div", { staticClass: "modal-header" }, [
+              _vm._v(
+                "\n                " + _vm._s(_vm.coin.name) + "\n            "
+              )
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "modal-body" }, [
+              _c("div", { staticClass: "card" }, [
+                _c("div", { staticClass: "card-body" }, [
+                  _c("h5", { staticClass: "card-title" }, [_vm._v("Price")]),
+                  _vm._v(" "),
+                  _c("p", { staticClass: "card-text" }, [
+                    _vm._v("$ " + _vm._s(_vm.coin.priceUsd))
+                  ])
                 ])
-              : _vm._e()
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "card" }, [
+                _c("div", { staticClass: "card-body" }, [
+                  _c("h5", { staticClass: "card-title" }, [
+                    _vm._v("Market cap")
+                  ]),
+                  _vm._v(" "),
+                  _c("p", { staticClass: "card-text" }, [
+                    _vm._v("$ " + _vm._s(_vm.coin.marketCapUsd))
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "card" }, [
+                _c("div", { staticClass: "card-body" }, [
+                  _c("h5", { staticClass: "card-title" }, [_vm._v("Supply")]),
+                  _vm._v(" "),
+                  _c("p", { staticClass: "card-text" }, [
+                    _vm._v(_vm._s(_vm.coin.supply))
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "card" }, [
+                _c("div", { staticClass: "card-body" }, [
+                  _c("h5", { staticClass: "card-title" }, [_vm._v("Volume")]),
+                  _vm._v(" "),
+                  _c("p", { staticClass: "card-text" }, [
+                    _vm._v(_vm._s(_vm.coin.volumeUsd24Hr))
+                  ])
+                ])
+              ]),
+              _vm._v(" "),
+              !_vm.history.length
+                ? _c("div", { staticClass: "d-flex justify-content-center" }, [
+                    _vm._m(0)
+                  ])
+                : _vm._e()
+            ])
           ])
-        ])
-      ])
+        ]
+      )
     ]
   )
 }
