@@ -47,11 +47,13 @@
                     </div>
 
                     <!-- Loading spinner animation -->
-                    <div class="d-flex col-md-12 justify-content-center mt-3" v-if="!history.length">
+                    <div class="d-flex col-md-12 justify-content-center mt-3" v-if="!chartData.labels.length">
                         <div class="spinner-border text-success" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
+
+                    <line-chart class="col-md-12" v-if="chartData.labels.length" :chart-data="chartData"></line-chart>
                 </div>
             </div>
         </div>
@@ -59,24 +61,50 @@
 </template>
 
 <script>
+    import LineChart from "../LineChart.js";
+    import moment from "moment";
     import Axios from "axios";
     import $ from "jquery";
 
     export default {
         name: "coinmodal",
 
+        components: { LineChart },
+
         data() {
             return {
                 coin: [],
-                history: []
+                chartData: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Price past 2 years',
+                        data: []
+                    }]
+                }
             }
         },
 
         methods: {
             GetCoinHistory () {
-                Axios.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1").then((response) => {
-                    this.history = response.data.data;
-                    console.log(this.history);
+                Axios.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1").then((response) => {  
+                    console.log(response.data.data);
+                    
+                    var index = 0;
+
+                    // Add weekly data to chart data, by adding one and skipping 6
+                    response.data.data.forEach(data => {
+                        if (index == 0) {
+                            this.chartData.labels.push(moment(data.time).format('LL'));
+                            this.chartData.datasets[0].data.push(data.priceUsd);
+                        }
+
+                        index++;
+
+                        if (index == 6)
+                            index = 0;
+                    })
+
+                    console.log(this.chartData);
                 });
             },
 
@@ -90,7 +118,13 @@
 
             ResetModal() {
                 this.coin = [];
-                this.history = [];
+                this.chartData = {
+                    labels: [],
+                    datasets: [{
+                        label: 'Price past 2 years',
+                        data: []
+                    }]}
+
                 console.log("Hiding modal!!!!!")
             }
         },
