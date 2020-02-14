@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="col-md-12">
         <table class="bg-light table table-bordered table-hover table-coin">
             <thead class="thead-dark">
                 <tr>
