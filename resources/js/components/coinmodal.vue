@@ -53,7 +53,9 @@
                         </div>
                     </div>
 
-                    <line-chart class="col-md-12" v-if="chartData.labels.length" :chart-data="chartData"></line-chart>
+                    <div class="col-md-12">
+                        <line-chart v-if="chartData.labels.length" :chart-data="chartData" :options="options"></line-chart>
+                    </div>
                 </div>
             </div>
         </div>
@@ -78,8 +80,15 @@
                     labels: [],
                     datasets: [{
                         label: 'Price past 2 years',
-                        data: []
-                    }]
+                        data: [],
+                        borderColor: "#2cd353",
+                        backgroundColor: "rgba(44, 211, 83, 0.2)",
+                        pointBackgroundColor: "#39e661",
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                 }
             }
         },
@@ -89,10 +98,18 @@
                 Axios.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1").then((response) => {  
                     console.log(response.data.data);
                     
-                    var index = 0;
+                    //var index = 0;
+
+                    for (var index = response.data.data.length - 1; index > 0; index -= 7) {
+                        this.chartData.labels.push(moment(response.data.data[index].time).format('LL'));
+                        this.chartData.datasets[0].data.push(response.data.data[index].priceUsd);
+                    }
+
+                    this.chartData.labels.reverse();
+                    this.chartData.datasets[0].data.reverse();
 
                     // Add weekly data to chart data, by adding one and skipping 6
-                    response.data.data.forEach(data => {
+                    /*response.data.data.forEach(data => {
                         if (index == 0) {
                             this.chartData.labels.push(moment(data.time).format('LL'));
                             this.chartData.datasets[0].data.push(data.priceUsd);
@@ -102,7 +119,7 @@
 
                         if (index == 6)
                             index = 0;
-                    })
+                    }) */
 
                     console.log(this.chartData);
                 });
@@ -122,7 +139,8 @@
                     labels: [],
                     datasets: [{
                         label: 'Price past 2 years',
-                        data: []
+                        data: [],
+                        borderColor: "#bae755",
                     }]}
 
                 console.log("Hiding modal!!!!!")

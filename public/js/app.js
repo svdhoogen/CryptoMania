@@ -78,6 +78,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 
 
@@ -94,8 +96,15 @@ __webpack_require__.r(__webpack_exports__);
         labels: [],
         datasets: [{
           label: 'Price past 2 years',
-          data: []
+          data: [],
+          borderColor: "#2cd353",
+          backgroundColor: "rgba(44, 211, 83, 0.2)",
+          pointBackgroundColor: "#39e661"
         }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
       }
     };
   },
@@ -104,19 +113,29 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       axios__WEBPACK_IMPORTED_MODULE_2___default.a.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1").then(function (response) {
-        console.log(response.data.data);
-        var index = 0; // Add weekly data to chart data, by adding one and skipping 6
+        console.log(response.data.data); //var index = 0;
 
-        response.data.data.forEach(function (data) {
-          if (index == 0) {
-            _this.chartData.labels.push(moment__WEBPACK_IMPORTED_MODULE_1___default()(data.time).format('LL'));
+        for (var index = response.data.data.length - 1; index > 0; index -= 7) {
+          _this.chartData.labels.push(moment__WEBPACK_IMPORTED_MODULE_1___default()(response.data.data[index].time).format('LL'));
 
-            _this.chartData.datasets[0].data.push(data.priceUsd);
-          }
+          _this.chartData.datasets[0].data.push(response.data.data[index].priceUsd);
+        }
 
-          index++;
-          if (index == 6) index = 0;
-        });
+        _this.chartData.labels.reverse();
+
+        _this.chartData.datasets[0].data.reverse(); // Add weekly data to chart data, by adding one and skipping 6
+
+        /*response.data.data.forEach(data => {
+            if (index == 0) {
+                this.chartData.labels.push(moment(data.time).format('LL'));
+                this.chartData.datasets[0].data.push(data.priceUsd);
+            }
+             index++;
+             if (index == 6)
+                index = 0;
+        }) */
+
+
         console.log(_this.chartData);
       });
     },
@@ -132,7 +151,8 @@ __webpack_require__.r(__webpack_exports__);
         labels: [],
         datasets: [{
           label: 'Price past 2 years',
-          data: []
+          data: [],
+          borderColor: "#bae755"
         }]
       };
       console.log("Hiding modal!!!!!");
@@ -551,86 +571,90 @@ var render = function() {
               _vm._m(0)
             ]),
             _vm._v(" "),
-            _c(
-              "div",
-              { staticClass: "modal-body row" },
-              [
-                _c("div", { staticClass: "col-sm-3" }, [
-                  _c("div", { staticClass: "card" }, [
-                    _c("div", { staticClass: "card-body" }, [
-                      _c("h5", { staticClass: "card-title text-success" }, [
-                        _vm._v("Price")
-                      ]),
-                      _vm._v(" "),
-                      _c("p", { staticClass: "card-text" }, [
-                        _vm._v("$ " + _vm._s(_vm.coin.priceUsd))
-                      ])
+            _c("div", { staticClass: "modal-body row" }, [
+              _c("div", { staticClass: "col-sm-3" }, [
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-body" }, [
+                    _c("h5", { staticClass: "card-title text-success" }, [
+                      _vm._v("Price")
+                    ]),
+                    _vm._v(" "),
+                    _c("p", { staticClass: "card-text" }, [
+                      _vm._v("$ " + _vm._s(_vm.coin.priceUsd))
                     ])
                   ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-3" }, [
-                  _c("div", { staticClass: "card" }, [
-                    _c("div", { staticClass: "card-body" }, [
-                      _c("h5", { staticClass: "card-title text-success" }, [
-                        _vm._v("Market cap")
-                      ]),
-                      _vm._v(" "),
-                      _c("p", { staticClass: "card-text" }, [
-                        _vm._v("$ " + _vm._s(_vm.coin.marketCapUsd))
-                      ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-3" }, [
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-body" }, [
+                    _c("h5", { staticClass: "card-title text-success" }, [
+                      _vm._v("Market cap")
+                    ]),
+                    _vm._v(" "),
+                    _c("p", { staticClass: "card-text" }, [
+                      _vm._v("$ " + _vm._s(_vm.coin.marketCapUsd))
                     ])
                   ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-3" }, [
-                  _c("div", { staticClass: "card" }, [
-                    _c("div", { staticClass: "card-body" }, [
-                      _c("h5", { staticClass: "card-title text-success" }, [
-                        _vm._v("Supply")
-                      ]),
-                      _vm._v(" "),
-                      _c("p", { staticClass: "card-text" }, [
-                        _vm._v(_vm._s(_vm.coin.supply))
-                      ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-3" }, [
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-body" }, [
+                    _c("h5", { staticClass: "card-title text-success" }, [
+                      _vm._v("Supply")
+                    ]),
+                    _vm._v(" "),
+                    _c("p", { staticClass: "card-text" }, [
+                      _vm._v(_vm._s(_vm.coin.supply))
                     ])
                   ])
-                ]),
-                _vm._v(" "),
-                _c("div", { staticClass: "col-sm-3" }, [
-                  _c("div", { staticClass: "card" }, [
-                    _c("div", { staticClass: "card-body" }, [
-                      _c("h5", { staticClass: "card-title text-success" }, [
-                        _vm._v("Volume")
-                      ]),
-                      _vm._v(" "),
-                      _c("p", { staticClass: "card-text" }, [
-                        _vm._v(_vm._s(_vm.coin.volumeUsd24Hr))
-                      ])
+                ])
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-sm-3" }, [
+                _c("div", { staticClass: "card" }, [
+                  _c("div", { staticClass: "card-body" }, [
+                    _c("h5", { staticClass: "card-title text-success" }, [
+                      _vm._v("Volume")
+                    ]),
+                    _vm._v(" "),
+                    _c("p", { staticClass: "card-text" }, [
+                      _vm._v(_vm._s(_vm.coin.volumeUsd24Hr))
                     ])
                   ])
-                ]),
-                _vm._v(" "),
-                !_vm.chartData.labels.length
-                  ? _c(
-                      "div",
-                      {
-                        staticClass:
-                          "d-flex col-md-12 justify-content-center mt-3"
-                      },
-                      [_vm._m(1)]
-                    )
-                  : _vm._e(),
-                _vm._v(" "),
-                _vm.chartData.labels.length
-                  ? _c("line-chart", {
-                      staticClass: "col-md-12",
-                      attrs: { "chart-data": _vm.chartData }
-                    })
-                  : _vm._e()
-              ],
-              1
-            )
+                ])
+              ]),
+              _vm._v(" "),
+              !_vm.chartData.labels.length
+                ? _c(
+                    "div",
+                    {
+                      staticClass:
+                        "d-flex col-md-12 justify-content-center mt-3"
+                    },
+                    [_vm._m(1)]
+                  )
+                : _vm._e(),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "col-md-12" },
+                [
+                  _vm.chartData.labels.length
+                    ? _c("line-chart", {
+                        attrs: {
+                          "chart-data": _vm.chartData,
+                          options: _vm.options
+                        }
+                      })
+                    : _vm._e()
+                ],
+                1
+              )
+            ])
           ])
         ]
       )
