@@ -218,10 +218,13 @@ __webpack_require__.r(__webpack_exports__);
   name: "cointable",
   data: function data() {
     return {
-      coins: []
+      coins: [],
+      sort: 'rank',
+      sortDir: 'asc'
     };
   },
   methods: {
+    // Retrieves coin data from coincap api
     GetCoinData: function GetCoinData() {
       var _this = this;
 
@@ -238,9 +241,49 @@ __webpack_require__.r(__webpack_exports__);
         });
       });
     },
+    // Emits show graph event with corresponding coin
     ShowGraph: function ShowGraph(coin) {
       console.log("Raising show graph event for coin: " + coin);
       Event.$emit('showGraph', coin);
+    },
+    // Updates the table with a new sort
+    SortTable: function SortTable(newSort) {
+      // If new sort is current sort, reverse order
+      if (newSort == this.sort) this.sortDir = this.sortDir == 'asc' ? 'desc' : 'asc'; // Else reset order to ascending
+      else this.sortDir = 'asc'; // Update sort
+
+      this.sort = newSort;
+    }
+  },
+  computed: {
+    // Array of coins sorted by user's liking, reactive property
+    sortedCoins: function sortedCoins() {
+      var _this2 = this;
+
+      var sorted; // Sort as string
+
+      if (this.sort == 'name' || this.sort == 'symbol') {
+        console.log('Sorting ' + this.sort + ' as strings!');
+        sorted = this.coins.sort(function (a, b) {
+          // String a goes later
+          if (a[_this2.sort] > b[_this2.sort]) return 1; // String b goes later
+
+          if (a[_this2.sort] < b[_this2.sort]) return -1; // Same string
+
+          return 0;
+        });
+      } // Sort as numeric
+      else {
+          console.log('Sorting ' + this.sort + ' as numeric!');
+          sorted = this.coins.sort(function (a, b) {
+            return a[_this2.sort] - b[_this2.sort];
+          });
+        } // Reverse array if descending
+
+
+      if (this.sortDir == 'desc') sorted.reverse(); // Return array
+
+      return sorted;
     }
   },
   mounted: function mounted() {
@@ -813,14 +856,96 @@ var render = function() {
   return _c("div", { staticClass: "col-md-12 mt-5" }, [
     _c(
       "table",
-      { staticClass: "bg-light table table-bordered table-hover table-coin" },
+      {
+        staticClass: "bg-light table table-bordered table-hover",
+        attrs: { id: "table-coin" }
+      },
       [
-        _vm._m(0),
+        _c("thead", { staticClass: "thead-dark" }, [
+          _c("tr", [
+            _c(
+              "th",
+              {
+                staticClass: "text-center border-success bg-green",
+                on: {
+                  click: function($event) {
+                    return _vm.SortTable("rank")
+                  }
+                }
+              },
+              [_vm._v("Rank")]
+            ),
+            _vm._v(" "),
+            _c(
+              "th",
+              {
+                staticClass: "text-center border-success bg-green",
+                on: {
+                  click: function($event) {
+                    return _vm.SortTable("name")
+                  }
+                }
+              },
+              [_vm._v("Name")]
+            ),
+            _vm._v(" "),
+            _c(
+              "th",
+              {
+                staticClass: "text-center border-success bg-green",
+                on: {
+                  click: function($event) {
+                    return _vm.SortTable("symbol")
+                  }
+                }
+              },
+              [_vm._v("Symbol")]
+            ),
+            _vm._v(" "),
+            _c(
+              "th",
+              {
+                staticClass: "text-center border-success bg-green",
+                on: {
+                  click: function($event) {
+                    return _vm.SortTable("priceUsd")
+                  }
+                }
+              },
+              [_vm._v("Price $")]
+            ),
+            _vm._v(" "),
+            _c(
+              "th",
+              {
+                staticClass: "text-center border-success bg-green",
+                on: {
+                  click: function($event) {
+                    return _vm.SortTable("marketCapUsd")
+                  }
+                }
+              },
+              [_vm._v("Market cap $")]
+            ),
+            _vm._v(" "),
+            _c(
+              "th",
+              {
+                staticClass: "text-center border-success bg-green",
+                on: {
+                  click: function($event) {
+                    return _vm.SortTable("changePercent24Hr")
+                  }
+                }
+              },
+              [_vm._v("% 24hr")]
+            )
+          ])
+        ]),
         _vm._v(" "),
         _c(
           "tbody",
-          { attrs: { id: "table-body-coin" } },
-          _vm._l(_vm.coins, function(coin) {
+          _vm._l(_vm.sortedCoins, function(coin) {
             return _c(
               "tr",
               {
@@ -861,43 +986,11 @@ var render = function() {
     ),
     _vm._v(" "),
     !_vm.coins.length
-      ? _c("div", { staticClass: "d-flex justify-content-center" }, [_vm._m(1)])
+      ? _c("div", { staticClass: "d-flex justify-content-center" }, [_vm._m(0)])
       : _vm._e()
   ])
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("thead", { staticClass: "thead-dark" }, [
-      _c("tr", [
-        _c("th", { staticClass: "text-center border-success bg-green" }, [
-          _vm._v("Rank")
-        ]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center border-success bg-green" }, [
-          _vm._v("Name")
-        ]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center border-success bg-green" }, [
-          _vm._v("Symbol")
-        ]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center border-success bg-green" }, [
-          _vm._v("Price $")
-        ]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center border-success bg-green" }, [
-          _vm._v("Market cap $")
-        ]),
-        _vm._v(" "),
-        _c("th", { staticClass: "text-center border-success bg-green" }, [
-          _vm._v("% 24hr")
-        ])
-      ])
-    ])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
