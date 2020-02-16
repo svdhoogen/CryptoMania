@@ -81,7 +81,7 @@
                     datasets: [{
                         label: 'Price past 2 years',
                         data: [],
-                        borderColor: "#2cd353",
+                        borderColor: "#21bb45",
                         backgroundColor: "rgba(44, 211, 83, 0.2)",
                         pointBackgroundColor: "#39e661",
                     }],
@@ -140,7 +140,9 @@
                     datasets: [{
                         label: 'Price past 2 years',
                         data: [],
-                        borderColor: "#bae755",
+                        borderColor: "#21bb45",
+                        backgroundColor: "rgba(44, 211, 83, 0.2)",
+                        pointBackgroundColor: "#39e661",
                     }]}
 
                 console.log("Hiding modal!!!!!")

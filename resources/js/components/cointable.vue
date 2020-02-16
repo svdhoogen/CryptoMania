@@ -1,18 +1,18 @@
 <template>
-    <div class="col-md-12">
+    <div class="col-md-12 mt-5">
         <table class="bg-light table table-bordered table-hover table-coin">
             <thead class="thead-dark">
                 <tr>
-                    <th class="text-center bg-success border-green">Rank</th>
-                    <th class="text-center bg-success border-green">Name</th>
-                    <th class="text-center bg-success border-green">Symbol</th>
-                    <th class="text-center bg-success border-green">Price $</th>
-                    <th class="text-center bg-success border-green">Market cap $</th>
-                    <th class="text-center bg-success border-green">% 24hr</th>
+                    <th class="text-center border-success bg-green">Rank</th>
+                    <th class="text-center border-success bg-green">Name</th>
+                    <th class="text-center border-success bg-green">Symbol</th>
+                    <th class="text-center border-success bg-green">Price $</th>
+                    <th class="text-center border-success bg-green">Market cap $</th>
+                    <th class="text-center border-success bg-green">% 24hr</th>
                 </tr>
             </thead>
             <tbody id="table-body-coin">
-                <tr v-for="coin in coins" v-bind:key="coin.rank" @click="ShowGraph(coin)">
+                <tr v-for="coin in coins" :key="coin.rank" @click="ShowGraph(coin)">
                     <td>{{ coin.rank }}</td>
                     <td>{{ coin.name }} </td>
                     <td>{{ coin.symbol }}</td>

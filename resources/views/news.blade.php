@@ -1,11 +1,9 @@
 @extends('layout')
 
-@section('home')active @endsection
+@section('news')active @endsection
 
 @section('content')
     <div class="row justify-content-center overflow-hidden" id="root">
-        <cointable></cointable>
-    
-        <coinmodal></coinmodal>
+        <news></news>
     </div>
 @endsection

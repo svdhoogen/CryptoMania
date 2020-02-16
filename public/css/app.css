@@ -10893,7 +10893,15 @@ body {
 }
 
 .border-green {
-  border-color: #2cd353 !important;
+  border-color: #21bb45 !important;
+}
+
+.bg-green {
+  background-color: #21bb45 !important;
+}
+
+.bg-success {
+  border-color: #28a745 !important;
 }
 
 .modal-xl {

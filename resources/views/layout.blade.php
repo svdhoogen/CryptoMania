@@ -12,6 +12,24 @@
     {{-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous"> --}}
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <a class="navbar-brand" href="/">Crypto Mania</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item  @yield('home', '')">
+                    <a class="nav-link" href="/">Crypto table</a>
+                </li>
+                <li class="nav-item  @yield('news', '')">
+                    <a class="nav-link" href="/news">Crypto news</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
     <div @yield('fluid', ' class=container')>
         @yield('content', 'Whoops! No content found!')
     </div>

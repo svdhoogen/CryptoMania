@@ -3,6 +3,7 @@ import Bootstrap from 'bootstrap';
 import Axios from "axios";
 import cointable from './components/cointable';
 import coinmodal from './components/coinmodal';
+import news from './components/news';
 
 // Enable vue event logic
 window.Event = new Vue();
@@ -15,5 +16,6 @@ new Vue({
     components: {
         cointable,
         coinmodal,
+        news,
     },
 });
