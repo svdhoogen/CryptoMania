@@ -256,34 +256,27 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   computed: {
-    // Array of coins sorted by user's liking, reactive property
+    // Reactive array of coins sorted by current configuration
     sortedCoins: function sortedCoins() {
       var _this2 = this;
 
-      var sorted; // Sort as string
+      return this.coins.sort(function (a, b) {
+        if (_this2.sort == 'name' || _this2.sort == 'symbol') {
+          console.log('Sorting by ' + _this2.sort + ' as strings!');
+          var modifier = 1;
+          if (_this2.sortDir == 'desc') modifier = -1; // String is alphabetically later
 
-      if (this.sort == 'name' || this.sort == 'symbol') {
-        console.log('Sorting ' + this.sort + ' as strings!');
-        sorted = this.coins.sort(function (a, b) {
-          // String a goes later
-          if (a[_this2.sort] > b[_this2.sort]) return 1; // String b goes later
+          if (a[_this2.sort] > b[_this2.sort]) return modifier; // String is alphabetically first
 
-          if (a[_this2.sort] < b[_this2.sort]) return -1; // Same string
+          if (a[_this2.sort] < b[_this2.sort]) return -modifier; // Same string content
 
           return 0;
-        });
-      } // Sort as numeric
-      else {
-          console.log('Sorting ' + this.sort + ' as numeric!');
-          sorted = this.coins.sort(function (a, b) {
-            return a[_this2.sort] - b[_this2.sort];
-          });
-        } // Reverse array if descending
+        }
 
+        console.log('Sorting by ' + _this2.sort + ' as numeric!'); // Return sorting order
 
-      if (this.sortDir == 'desc') sorted.reverse(); // Return array
-
-      return sorted;
+        if (_this2.sortDir == 'asc') return a[_this2.sort] - b[_this2.sort];else return b[_this2.sort] - a[_this2.sort];
+      });
     }
   },
   mounted: function mounted() {

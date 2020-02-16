@@ -85,42 +85,37 @@
         },
 
         computed:{
-            // Array of coins sorted by user's liking, reactive property
+            // Reactive array of coins sorted by current configuration
             sortedCoins() {
-                var sorted;
+                return this.coins.sort((a, b) => {
+                    if (this.sort == 'name' || this.sort == 'symbol') {
+                        console.log('Sorting by ' + this.sort + ' as strings!');
 
-                // Sort as string
-                if (this.sort == 'name' || this.sort == 'symbol') {
-                    console.log('Sorting ' + this.sort + ' as strings!');
+                        let modifier = 1;
 
-                    sorted = this.coins.sort((a, b) => {
-                        // String a goes later
+                        if (this.sortDir == 'desc')
+                            modifier = -1;
+                        
+                        // String is alphabetically later
                         if (a[this.sort] > b[this.sort])
-                            return 1;
+                            return modifier;
 
-                        // String b goes later
+                        // String is alphabetically first
                         if (a[this.sort] < b[this.sort])
-                            return -1;
+                            return -modifier;
 
-                        // Same string
+                        // Same string content
                         return 0;
-                    });
-                }
-                // Sort as numeric
-                else {
-                    console.log('Sorting ' + this.sort + ' as numeric!');
+                    }
 
-                    sorted = this.coins.sort((a, b) => {
-                            return a[this.sort] - b[this.sort];
-                    });
-                }
-
-                // Reverse array if descending
-                if (this.sortDir == 'desc')
-                    sorted.reverse();
-
-                // Return array
-                return sorted;
+                    console.log('Sorting by ' + this.sort + ' as numeric!');
+                    
+                    // Return sorting order
+                    if (this.sortDir == 'asc')
+                        return a[this.sort] - b[this.sort];
+                    else
+                        return b[this.sort] - a[this.sort]
+                });
             }
         },
 
