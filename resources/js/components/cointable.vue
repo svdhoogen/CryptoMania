@@ -1,5 +1,7 @@
 <template>
-    <div class="col-md-12 mt-5">
+    <div class="col-md-12 mt-3">
+        <input class="form-control col-md-3 mb-3" v-model="filter" type="text" placeholder="Search" aria-label="Search"/>
+
         <table id="table-coin" class="bg-light table table-bordered table-hover">
             <thead class="thead-dark">
                 <tr>
@@ -42,7 +44,8 @@
             return {
                 coins: [],
                 sort: 'rank',
-                sortDir:'asc'
+                sortDir:'asc',
+                filter:''
             }
         },
 
@@ -83,7 +86,17 @@
         computed:{
             // Reactive array of coins sorted by current configuration
             sortedCoins() {
-                return this.coins.sort((a, b) => {
+                var filteredCoins = this.coins;
+
+                if (this.filter != '')
+                    filteredCoins = this.coins.filter(coin => coin.name.toLowerCase().trim().includes(this.filter.toLowerCase().trim()));
+                   
+                
+                console.log(this.filter);
+
+                console.log(filteredCoins);
+
+                return filteredCoins.sort((a, b) => {
                     if (this.sort == 'name' || this.sort == 'symbol') {
                         let modifier = 1;
 

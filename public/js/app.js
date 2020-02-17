@@ -310,6 +310,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "cointable",
@@ -317,7 +319,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       coins: [],
       sort: 'rank',
-      sortDir: 'asc'
+      sortDir: 'asc',
+      filter: ''
     };
   },
   methods: {
@@ -351,7 +354,13 @@ __webpack_require__.r(__webpack_exports__);
     sortedCoins: function sortedCoins() {
       var _this = this;
 
-      return this.coins.sort(function (a, b) {
+      var filteredCoins = this.coins;
+      if (this.filter != '') filteredCoins = this.coins.filter(function (coin) {
+        return coin.name.toLowerCase().trim().includes(_this.filter.toLowerCase().trim());
+      });
+      console.log(this.filter);
+      console.log(filteredCoins);
+      return filteredCoins.sort(function (a, b) {
         if (_this.sort == 'name' || _this.sort == 'symbol') {
           var modifier = 1; // Descending, reverse order
 
@@ -958,7 +967,29 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "col-md-12 mt-5" }, [
+  return _c("div", { staticClass: "col-md-12 mt-3" }, [
+    _c("input", {
+      directives: [
+        {
+          name: "model",
+          rawName: "v-model",
+          value: _vm.filter,
+          expression: "filter"
+        }
+      ],
+      staticClass: "form-control col-md-3 mb-3",
+      attrs: { type: "text", placeholder: "Search", "aria-label": "Search" },
+      domProps: { value: _vm.filter },
+      on: {
+        input: function($event) {
+          if ($event.target.composing) {
+            return
+          }
+          _vm.filter = $event.target.value
+        }
+      }
+    }),
+    _vm._v(" "),
     _c(
       "table",
       {
