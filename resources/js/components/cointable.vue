@@ -17,7 +17,7 @@
                 <tr v-for="coin in sortedCoins" :key="coin.rank" @click="ShowGraph(coin)">
                     <td>{{ coin.rank }}</td>
                     <td>{{ coin.name }} </td>
-                    <td>{{ coin.symbol }}</td>
+                    <td><img class="mr-2" height="20" :src="'images/coin-logos/' + coin.id + '.png'" />{{ coin.symbol }}</td>
                     <td>{{ coin.priceUsd }}</td>
                     <td>{{ coin.marketCapUsd }}</td>
                     <td v-bind:class="{ 'text-success': coin.changePercent24Hr > 0, 'text-danger': coin.changePercent24Hr < 0 }">{{ coin.changePercent24Hr }}</td>
