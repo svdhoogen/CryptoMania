@@ -378,7 +378,7 @@ __webpack_require__.r(__webpack_exports__);
       console.log(_this2.coins); // Normalize values to 2 decimals
 
       _this2.coins.forEach(function (coin) {
-        coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
+        coin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
         coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
         coin.changePercent24Hr = parseFloat(coin.changePercent24Hr).toFixed(2);
         coin.volumeUsd24Hr = parseFloat(coin.volumeUsd24Hr).toFixed(2);
