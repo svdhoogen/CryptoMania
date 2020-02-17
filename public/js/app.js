@@ -1097,7 +1097,16 @@ var render = function() {
                 _vm._v(" "),
                 _c("td", [_vm._v(_vm._s(coin.name) + " ")]),
                 _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(coin.symbol))]),
+                _c("td", [
+                  _c("img", {
+                    staticClass: "mr-2",
+                    attrs: {
+                      height: "20",
+                      src: "images/coin-logos/" + coin.id + ".png"
+                    }
+                  }),
+                  _vm._v(_vm._s(coin.symbol))
+                ]),
                 _vm._v(" "),
                 _c("td", [_vm._v(_vm._s(coin.priceUsd))]),
                 _vm._v(" "),
