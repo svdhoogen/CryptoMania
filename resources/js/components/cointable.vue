@@ -47,22 +47,6 @@
         },
 
         methods: {
-            // Retrieves coin data from coincap api
-            GetCoinData() {
-                Axios.get("https://api.coincap.io/v2/assets").then((response) => {
-                    this.coins = response.data.data;
-                    console.log(this.coins);
-
-                    this.coins.forEach(coin => {
-                        coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
-                        coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
-                        coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
-                        coin.volumeUsd24Hr =  parseFloat(coin.volumeUsd24Hr).toFixed(2);
-                        coin.supply =  parseFloat(coin.supply).toFixed(2);
-                    });
-                });
-            },
-
             // Emits show graph event with corresponding coin
             ShowGraph(coin) {
                 console.log("Raising show graph event for coin: " + coin);
@@ -71,16 +55,28 @@
 
             // Updates the table with a new sort
             SortTable(newSort) {
-                // If new sort is current sort, reverse order
-                if (newSort == this.sort)
-                    this.sortDir = this.sortDir == 'asc' ? 'desc' : 'asc';
+                // If same sort, reverse order
+                if (newSort === this.sort)
+                    this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
 
-                // Else reset order to ascending
+                // Else reset to ascending
                 else
                     this.sortDir = 'asc';
 
-                // Update sort
+                // Update current sort
                 this.sort = newSort;
+            },
+
+            // Updates price on new price received
+            UpdatePrices(prices) {
+                for (var key in prices) {
+                    // Find coin by id
+                    var coin = this.coins.find(coin => coin.id === key);
+
+                    // Update price if coin found
+                    if (coin != null)
+                        coin.priceUsd = prices[key]
+                }
             }
         },
 
@@ -89,10 +85,9 @@
             sortedCoins() {
                 return this.coins.sort((a, b) => {
                     if (this.sort == 'name' || this.sort == 'symbol') {
-                        console.log('Sorting by ' + this.sort + ' as strings!');
-
                         let modifier = 1;
 
+                        // Descending, reverse order
                         if (this.sortDir == 'desc')
                             modifier = -1;
                         
@@ -104,11 +99,9 @@
                         if (a[this.sort] < b[this.sort])
                             return -modifier;
 
-                        // Same string content
+                        // Strings are equal
                         return 0;
                     }
-
-                    console.log('Sorting by ' + this.sort + ' as numeric!');
                     
                     // Return sorting order
                     if (this.sortDir == 'asc')
@@ -120,7 +113,32 @@
         },
 
         mounted() {
-            this.GetCoinData();
+            // Retrieve initial coin data + initialize web socket when done
+            Axios.get("https://api.coincap.io/v2/assets").then((response) => {
+                this.coins = response.data.data;
+
+                console.log(this.coins);
+
+                // Normalize values to 2 decimals
+                this.coins.forEach(coin => {
+                    coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
+                    coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
+                    coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
+                    coin.volumeUsd24Hr =  parseFloat(coin.volumeUsd24Hr).toFixed(2);
+                    coin.supply =  parseFloat(coin.supply).toFixed(2);
+                });
+
+                var assets = [];
+
+                // Constructs list of all assets, using coin id + ','
+                this.coins.forEach(coin => { assets.push(coin.id + ','); })
+
+                // Init websocket from adress with all 200 assets
+                const priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets);
+
+                // On price update, update prices
+                priceUpdate.onmessage = (msg) => this.UpdatePrices(JSON.parse(msg.data));;
+            });
         }
     }
 </script>

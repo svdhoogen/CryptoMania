@@ -4,6 +4,6 @@
 
 @section('content')
     <div class="row justify-content-center overflow-hidden" id="root">
-        <news></news>
+        <coinnews></coinnews>
     </div>
 @endsection

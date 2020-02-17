@@ -168,6 +168,103 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/coinnews.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/coinnews.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "coinnews",
+  data: function data() {
+    return {
+      data: []
+    };
+  },
+  methods: {
+    GetNewsData: function GetNewsData() {
+      var _this = this;
+
+      axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("https://cryptocontrol.io/api/v1/public/news?language=en", {
+        'headers': {
+          'x-api-key': "ca309c24e5710df683fcfbeb52ebd9fd"
+        }
+      }).then(function (response) {
+        _this.data = response.data;
+
+        _this.data.forEach(function (news) {
+          news.publishedAt = moment__WEBPACK_IMPORTED_MODULE_0___default()(news.publishedAt).format('LL');
+        });
+
+        console.log(_this.data);
+      });
+    }
+  },
+  mounted: function mounted() {
+    this.GetNewsData();
+  }
+  /*
+      _id: (...)
+      hotness: 73233.99238355865
+      activityHotness: (...)
+      primaryCategory: (...)
+      words: (...)
+      similarArticles: (...)
+      coins: (...)
+      description: (...)
+      publishedAt: (...)
+      title: (...)
+      url: (...)
+      source: (...)
+      thumbnail: (...)
+      sourceDomain: (...)
+      originalImageUrl: (...)
+  */
+
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/cointable.vue?vue&type=script&lang=js&":
 /*!********************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/cointable.vue?vue&type=script&lang=js& ***!
@@ -224,23 +321,6 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    // Retrieves coin data from coincap api
-    GetCoinData: function GetCoinData() {
-      var _this = this;
-
-      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("https://api.coincap.io/v2/assets").then(function (response) {
-        _this.coins = response.data.data;
-        console.log(_this.coins);
-
-        _this.coins.forEach(function (coin) {
-          coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
-          coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
-          coin.changePercent24Hr = parseFloat(coin.changePercent24Hr).toFixed(2);
-          coin.volumeUsd24Hr = parseFloat(coin.volumeUsd24Hr).toFixed(2);
-          coin.supply = parseFloat(coin.supply).toFixed(2);
-        });
-      });
-    },
     // Emits show graph event with corresponding coin
     ShowGraph: function ShowGraph(coin) {
       console.log("Raising show graph event for coin: " + coin);
@@ -248,137 +328,79 @@ __webpack_require__.r(__webpack_exports__);
     },
     // Updates the table with a new sort
     SortTable: function SortTable(newSort) {
-      // If new sort is current sort, reverse order
-      if (newSort == this.sort) this.sortDir = this.sortDir == 'asc' ? 'desc' : 'asc'; // Else reset order to ascending
-      else this.sortDir = 'asc'; // Update sort
+      // If same sort, reverse order
+      if (newSort === this.sort) this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc'; // Else reset to ascending
+      else this.sortDir = 'asc'; // Update current sort
 
       this.sort = newSort;
+    },
+    // Updates price on new price received
+    UpdatePrices: function UpdatePrices(prices) {
+      for (var key in prices) {
+        // Find coin by id
+        var coin = this.coins.find(function (coin) {
+          return coin.id === key;
+        }); // Update price if coin found
+
+        if (coin != null) coin.priceUsd = prices[key];
+      }
     }
   },
   computed: {
     // Reactive array of coins sorted by current configuration
     sortedCoins: function sortedCoins() {
-      var _this2 = this;
-
-      return this.coins.sort(function (a, b) {
-        if (_this2.sort == 'name' || _this2.sort == 'symbol') {
-          console.log('Sorting by ' + _this2.sort + ' as strings!');
-          var modifier = 1;
-          if (_this2.sortDir == 'desc') modifier = -1; // String is alphabetically later
-
-          if (a[_this2.sort] > b[_this2.sort]) return modifier; // String is alphabetically first
-
-          if (a[_this2.sort] < b[_this2.sort]) return -modifier; // Same string content
-
-          return 0;
-        }
-
-        console.log('Sorting by ' + _this2.sort + ' as numeric!'); // Return sorting order
-
-        if (_this2.sortDir == 'asc') return a[_this2.sort] - b[_this2.sort];else return b[_this2.sort] - a[_this2.sort];
-      });
-    }
-  },
-  mounted: function mounted() {
-    this.GetCoinData();
-  }
-});
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/news.vue?vue&type=script&lang=js&":
-/*!***************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/news.vue?vue&type=script&lang=js& ***!
-  \***************************************************************************************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: "news",
-  data: function data() {
-    return {
-      data: []
-    };
-  },
-  methods: {
-    GetNewsData: function GetNewsData() {
       var _this = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("https://cryptocontrol.io/api/v1/public/news?language=en", {
-        'headers': {
-          'x-api-key': "ca309c24e5710df683fcfbeb52ebd9fd"
-        }
-      }).then(function (response) {
-        _this.data = response.data;
+      return this.coins.sort(function (a, b) {
+        if (_this.sort == 'name' || _this.sort == 'symbol') {
+          var modifier = 1; // Descending, reverse order
 
-        _this.data.forEach(function (news) {
-          news.publishedAt = moment__WEBPACK_IMPORTED_MODULE_0___default()(news.publishedAt).format('LL');
-        });
+          if (_this.sortDir == 'desc') modifier = -1; // String is alphabetically later
 
-        console.log(_this.data);
+          if (a[_this.sort] > b[_this.sort]) return modifier; // String is alphabetically first
+
+          if (a[_this.sort] < b[_this.sort]) return -modifier; // Strings are equal
+
+          return 0;
+        } // Return sorting order
+
+
+        if (_this.sortDir == 'asc') return a[_this.sort] - b[_this.sort];else return b[_this.sort] - a[_this.sort];
       });
     }
   },
   mounted: function mounted() {
-    this.GetNewsData();
-  }
-  /*
-      _id: (...)
-      hotness: 73233.99238355865
-      activityHotness: (...)
-      primaryCategory: (...)
-      words: (...)
-      similarArticles: (...)
-      coins: (...)
-      description: (...)
-      publishedAt: (...)
-      title: (...)
-      url: (...)
-      source: (...)
-      thumbnail: (...)
-      sourceDomain: (...)
-      originalImageUrl: (...)
-  */
+    var _this2 = this;
 
+    // Retrieve initial coin data + initialize web socket when done
+    axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("https://api.coincap.io/v2/assets").then(function (response) {
+      _this2.coins = response.data.data;
+      console.log(_this2.coins); // Normalize values to 2 decimals
+
+      _this2.coins.forEach(function (coin) {
+        coin.priceUsd = parseFloat(coin.priceUsd).toFixed(2);
+        coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
+        coin.changePercent24Hr = parseFloat(coin.changePercent24Hr).toFixed(2);
+        coin.volumeUsd24Hr = parseFloat(coin.volumeUsd24Hr).toFixed(2);
+        coin.supply = parseFloat(coin.supply).toFixed(2);
+      });
+
+      var assets = []; // Constructs list of all assets, using coin id + ','
+
+      _this2.coins.forEach(function (coin) {
+        assets.push(coin.id + ',');
+      }); // Init websocket from adress with all 200 assets
+
+
+      var priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets); // On price update, update prices
+
+      priceUpdate.onmessage = function (msg) {
+        return _this2.UpdatePrices(JSON.parse(msg.data));
+      };
+
+      ;
+    });
+  }
 });
 
 /***/ }),
@@ -831,6 +853,96 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/coinnews.vue?vue&type=template&id=58298fa2&":
+/*!***********************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/coinnews.vue?vue&type=template&id=58298fa2& ***!
+  \***********************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    { staticClass: "col-md-8 justify-content-center" },
+    [
+      _vm._l(_vm.data, function(news) {
+        return _c("div", { key: news.id, staticClass: "card mt-2 mb-2" }, [
+          _c("div", { staticClass: "card-body row" }, [
+            _c("div", { staticClass: "col-md-3" }, [
+              _c("a", { attrs: { href: news.url } }, [
+                _c("img", {
+                  attrs: { src: news.thumbnail, alt: "Article image" }
+                })
+              ])
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "col-md-9" }, [
+              _c("a", { attrs: { href: news.url } }, [
+                _c("h5", { staticClass: "card-title text-success" }, [
+                  _vm._v(_vm._s(news.title))
+                ])
+              ]),
+              _vm._v(" "),
+              _c("p", { staticClass: "card-text" }, [
+                _vm._v(_vm._s(news.description))
+              ])
+            ]),
+            _vm._v(" "),
+            _c("a", { attrs: { href: news.url } }, [
+              _c(
+                "p",
+                {
+                  staticClass:
+                    "text-muted font-weight-lighter font-italic mb-0 ml-3 mt-2"
+                },
+                [
+                  _vm._v(
+                    "Source: " +
+                      _vm._s(news.source.name) +
+                      ", " +
+                      _vm._s(news.publishedAt)
+                  )
+                ]
+              )
+            ])
+          ])
+        ])
+      }),
+      _vm._v(" "),
+      !_vm.data.length
+        ? _c("div", { staticClass: "d-flex justify-content-center mt-5" }, [
+            _vm._m(0)
+          ])
+        : _vm._e()
+    ],
+    2
+  )
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c(
+      "div",
+      { staticClass: "spinner-border text-success", attrs: { role: "status" } },
+      [_c("span", { staticClass: "sr-only" }, [_vm._v("Loading...")])]
+    )
+  }
+]
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/cointable.vue?vue&type=template&id=23a343a2&":
 /*!************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/cointable.vue?vue&type=template&id=23a343a2& ***!
@@ -1001,96 +1113,6 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/news.vue?vue&type=template&id=1a2e07c4&":
-/*!*******************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/news.vue?vue&type=template&id=1a2e07c4& ***!
-  \*******************************************************************************************************************************************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function() {
-  var _vm = this
-  var _h = _vm.$createElement
-  var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "col-md-8 justify-content-center" },
-    [
-      _vm._l(_vm.data, function(news) {
-        return _c("div", { key: news.id, staticClass: "card mt-2 mb-2" }, [
-          _c("div", { staticClass: "card-body row" }, [
-            _c("div", { staticClass: "col-md-3" }, [
-              _c("a", { attrs: { href: news.url } }, [
-                _c("img", {
-                  attrs: { src: news.thumbnail, alt: "Article image" }
-                })
-              ])
-            ]),
-            _vm._v(" "),
-            _c("div", { staticClass: "col-md-9" }, [
-              _c("a", { attrs: { href: news.url } }, [
-                _c("h5", { staticClass: "card-title text-success" }, [
-                  _vm._v(_vm._s(news.title))
-                ])
-              ]),
-              _vm._v(" "),
-              _c("p", { staticClass: "card-text" }, [
-                _vm._v(_vm._s(news.description))
-              ])
-            ]),
-            _vm._v(" "),
-            _c("a", { attrs: { href: news.url } }, [
-              _c(
-                "p",
-                {
-                  staticClass:
-                    "text-muted font-weight-lighter font-italic mb-0 ml-3 mt-2"
-                },
-                [
-                  _vm._v(
-                    "Source: " +
-                      _vm._s(news.source.name) +
-                      ", " +
-                      _vm._s(news.publishedAt)
-                  )
-                ]
-              )
-            ])
-          ])
-        ])
-      }),
-      _vm._v(" "),
-      !_vm.data.length
-        ? _c("div", { staticClass: "d-flex justify-content-center mt-5" }, [
-            _vm._m(0)
-          ])
-        : _vm._e()
-    ],
-    2
-  )
-}
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c(
-      "div",
-      { staticClass: "spinner-border text-success", attrs: { role: "status" } },
-      [_c("span", { staticClass: "sr-only" }, [_vm._v("Loading...")])]
-    )
-  }
-]
-render._withStripped = true
-
-
-
-/***/ }),
-
 /***/ "./resources/js/LineChart.js":
 /*!***********************************!*\
   !*** ./resources/js/LineChart.js ***!
@@ -1133,7 +1155,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _components_cointable__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/cointable */ "./resources/js/components/cointable.vue");
 /* harmony import */ var _components_coinmodal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/coinmodal */ "./resources/js/components/coinmodal.vue");
-/* harmony import */ var _components_news__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/news */ "./resources/js/components/news.vue");
+/* harmony import */ var _components_coinnews__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/coinnews */ "./resources/js/components/coinnews.vue");
 
 
 
@@ -1148,7 +1170,7 @@ new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
   components: {
     cointable: _components_cointable__WEBPACK_IMPORTED_MODULE_3__["default"],
     coinmodal: _components_coinmodal__WEBPACK_IMPORTED_MODULE_4__["default"],
-    news: _components_news__WEBPACK_IMPORTED_MODULE_5__["default"]
+    coinnews: _components_coinnews__WEBPACK_IMPORTED_MODULE_5__["default"]
   }
 });
 
@@ -1223,6 +1245,75 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./resources/js/components/coinnews.vue":
+/*!**********************************************!*\
+  !*** ./resources/js/components/coinnews.vue ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _coinnews_vue_vue_type_template_id_58298fa2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./coinnews.vue?vue&type=template&id=58298fa2& */ "./resources/js/components/coinnews.vue?vue&type=template&id=58298fa2&");
+/* harmony import */ var _coinnews_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./coinnews.vue?vue&type=script&lang=js& */ "./resources/js/components/coinnews.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _coinnews_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _coinnews_vue_vue_type_template_id_58298fa2___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _coinnews_vue_vue_type_template_id_58298fa2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/coinnews.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/coinnews.vue?vue&type=script&lang=js&":
+/*!***********************************************************************!*\
+  !*** ./resources/js/components/coinnews.vue?vue&type=script&lang=js& ***!
+  \***********************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_coinnews_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./coinnews.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/coinnews.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_coinnews_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/coinnews.vue?vue&type=template&id=58298fa2&":
+/*!*****************************************************************************!*\
+  !*** ./resources/js/components/coinnews.vue?vue&type=template&id=58298fa2& ***!
+  \*****************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_coinnews_vue_vue_type_template_id_58298fa2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./coinnews.vue?vue&type=template&id=58298fa2& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/coinnews.vue?vue&type=template&id=58298fa2&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_coinnews_vue_vue_type_template_id_58298fa2___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_coinnews_vue_vue_type_template_id_58298fa2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
 /***/ "./resources/js/components/cointable.vue":
 /*!***********************************************!*\
   !*** ./resources/js/components/cointable.vue ***!
@@ -1287,75 +1378,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_cointable_vue_vue_type_template_id_23a343a2___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_cointable_vue_vue_type_template_id_23a343a2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
-
-
-
-/***/ }),
-
-/***/ "./resources/js/components/news.vue":
-/*!******************************************!*\
-  !*** ./resources/js/components/news.vue ***!
-  \******************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _news_vue_vue_type_template_id_1a2e07c4___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./news.vue?vue&type=template&id=1a2e07c4& */ "./resources/js/components/news.vue?vue&type=template&id=1a2e07c4&");
-/* harmony import */ var _news_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./news.vue?vue&type=script&lang=js& */ "./resources/js/components/news.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
-
-
-
-
-
-/* normalize component */
-
-var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _news_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
-  _news_vue_vue_type_template_id_1a2e07c4___WEBPACK_IMPORTED_MODULE_0__["render"],
-  _news_vue_vue_type_template_id_1a2e07c4___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
-  false,
-  null,
-  null,
-  null
-  
-)
-
-/* hot reload */
-if (false) { var api; }
-component.options.__file = "resources/js/components/news.vue"
-/* harmony default export */ __webpack_exports__["default"] = (component.exports);
-
-/***/ }),
-
-/***/ "./resources/js/components/news.vue?vue&type=script&lang=js&":
-/*!*******************************************************************!*\
-  !*** ./resources/js/components/news.vue?vue&type=script&lang=js& ***!
-  \*******************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_news_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./news.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/news.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_news_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
-
-/***/ }),
-
-/***/ "./resources/js/components/news.vue?vue&type=template&id=1a2e07c4&":
-/*!*************************************************************************!*\
-  !*** ./resources/js/components/news.vue?vue&type=template&id=1a2e07c4& ***!
-  \*************************************************************************/
-/*! exports provided: render, staticRenderFns */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_news_vue_vue_type_template_id_1a2e07c4___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./news.vue?vue&type=template&id=1a2e07c4& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/news.vue?vue&type=template&id=1a2e07c4&");
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_news_vue_vue_type_template_id_1a2e07c4___WEBPACK_IMPORTED_MODULE_0__["render"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_news_vue_vue_type_template_id_1a2e07c4___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

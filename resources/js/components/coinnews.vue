@@ -34,7 +34,7 @@
     import Axios from "axios";
 
     export default {
-        name: "news",
+        name: "coinnews",
 
         data() {
             return {
