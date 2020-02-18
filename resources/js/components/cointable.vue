@@ -1,5 +1,5 @@
 <template>
-    <div class="col-md-12 mt-3">
+    <div class="col-md-12">
         <input class="form-control col-md-3 mb-3" v-model="filter" type="text" placeholder="Search" aria-label="Search"/>
 
         <table id="table-coin" class="bg-light table table-bordered table-hover">

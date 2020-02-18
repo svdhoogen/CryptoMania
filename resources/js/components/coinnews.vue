@@ -1,6 +1,6 @@
 <template>
     <div class="col-md-8 justify-content-center">
-        <div class="card mt-2 mb-2" v-for="news in data" :key="news.id">
+        <div class="card mb-2" v-for="news in data" :key="news.id">
             <div class="card-body row">
                 <div class="col-md-3">
                     <a :href="news.url">
