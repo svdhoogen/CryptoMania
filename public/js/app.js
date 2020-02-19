@@ -308,19 +308,64 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "coinportfolio",
   data: function data() {
     return {
-      coins: []
+      coins: [],
+      myCoins: []
     };
   },
-  methods: {},
+  methods: {
+    UpdateAmount: function UpdateAmount(coin) {
+      console.log("Updating " + coin);
+    }
+  },
   computed: {},
   mounted: function mounted() {
-    // Retrieve coin data for owned coins
-    axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("https://api.coincap.io/v2/assets").then(function (response) {});
+    var _this = this;
+
+    // Retrieve my coins
+    axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/mycoins").then(function (response) {
+      _this.myCoins = response.data;
+      console.log(_this.myCoins); // Get all id's
+
+      var coinCapUrl = 'https://api.coincap.io/v2/assets?ids='; // Constructs list of all assets, using coin id + ','
+
+      _this.myCoins.forEach(function (coin) {
+        coinCapUrl += coin.coin_id + ',';
+      });
+
+      console.log("Getting coin data from url: " + coinCapUrl); // Retrieve coin data for owned coins
+
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get(coinCapUrl).then(function (response) {
+        _this.coins = response.data.data;
+        response.data.data.forEach(function (coin) {
+          // Find coin by id
+          var myCoin = _this.myCoins.find(function (myCoin) {
+            return myCoin.coin_id === coin.id;
+          }); // Update price if coin found
+
+
+          if (myCoin != null) myCoin.name = coin.name;
+          myCoin.symbol = coin.symbol;
+          myCoin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
+        });
+      });
+    });
   }
 });
 
@@ -1042,128 +1087,120 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "col-md-12" }, [
-    _c(
-      "table",
-      {
-        staticClass: "bg-light table table-bordered table-hover",
-        attrs: { id: "table-coin" }
-      },
-      [
-        _c("thead", { staticClass: "thead-dark" }, [
-          _c("tr", [
-            _c(
-              "th",
-              {
-                staticClass: "text-center border-success bg-green",
-                on: {
-                  click: function($event) {
-                    return _vm.SortTable("name")
-                  }
-                }
-              },
-              [_vm._v("Name")]
-            ),
+    _c("table", { staticClass: "bg-light table table-bordered" }, [
+      _vm._m(0),
+      _vm._v(" "),
+      _c(
+        "tbody",
+        _vm._l(_vm.myCoins, function(coin) {
+          return _c("tr", { key: coin.coin_id }, [
+            _c("td", [_vm._v(_vm._s(coin.name) + " ")]),
             _vm._v(" "),
-            _c(
-              "th",
-              {
-                staticClass: "text-center border-success bg-green",
-                on: {
-                  click: function($event) {
-                    return _vm.SortTable("symbol")
-                  }
+            _c("td", [
+              _c("img", {
+                staticClass: "mr-2",
+                attrs: {
+                  height: "20",
+                  src: "images/coin-logos/" + coin.coin_id + ".png"
                 }
-              },
-              [_vm._v("Symbol")]
-            ),
+              }),
+              _vm._v(_vm._s(coin.symbol))
+            ]),
             _vm._v(" "),
-            _c(
-              "th",
-              {
-                staticClass: "text-center border-success bg-green",
-                on: {
-                  click: function($event) {
-                    return _vm.SortTable("priceUsd")
-                  }
-                }
-              },
-              [_vm._v("Price $")]
-            ),
+            _c("td", [_vm._v(_vm._s(coin.priceUsd))]),
             _vm._v(" "),
-            _c(
-              "th",
-              {
-                staticClass: "text-center border-success bg-green",
-                on: {
-                  click: function($event) {
-                    return _vm.SortTable("priceUsd")
-                  }
-                }
-              },
-              [_vm._v("Owned #")]
-            ),
+            _c("td", [_vm._v(_vm._s(coin.priceUsd * coin.count))]),
             _vm._v(" "),
-            _c(
-              "th",
-              {
-                staticClass: "text-center border-success bg-green",
-                on: {
-                  click: function($event) {
-                    return _vm.SortTable("priceUsd")
+            _c("td", [_vm._v(_vm._s(coin.count))]),
+            _vm._v(" "),
+            _c("td", [
+              _c("div", { staticClass: "input-group mb-3" }, [
+                _c("input", {
+                  staticClass: "form-control",
+                  attrs: {
+                    type: "text",
+                    placeholder: "Amount",
+                    "aria-label": "Amount"
                   }
-                }
-              },
-              [_vm._v("Owned $")]
-            )
-          ])
-        ]),
-        _vm._v(" "),
-        _c(
-          "tbody",
-          _vm._l(_vm.coins, function(coin) {
-            return _c(
-              "tr",
-              {
-                key: coin.rank,
-                on: {
-                  click: function($event) {
-                    return _vm.ShowGraph(coin)
-                  }
-                }
-              },
-              [
-                _c("td", [_vm._v(_vm._s(coin.name) + " ")]),
+                }),
                 _vm._v(" "),
-                _c("td", [
-                  _c("img", {
-                    staticClass: "mr-2",
-                    attrs: {
-                      height: "20",
-                      src: "images/coin-logos/" + coin.id + ".png"
-                    }
-                  }),
-                  _vm._v(_vm._s(coin.symbol))
+                _c("div", { staticClass: "input-group-append" }, [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-outline-success",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          return _vm.UpdateAmount(coin.coin_id)
+                        }
+                      }
+                    },
+                    [_vm._v("Set # owned")]
+                  )
                 ]),
                 _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(coin.priceUsd))]),
-                _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(coin.count))]),
-                _vm._v(" "),
-                _c("td", [_vm._v(_vm._s(coin.priceUsd * coin.count))])
-              ]
-            )
-          }),
-          0
-        )
-      ]
-    ),
+                _c("div", { staticClass: "input-group-append" }, [
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-outline-danger",
+                      attrs: { type: "button" },
+                      on: {
+                        click: function($event) {
+                          return _vm.RemoveCoin(coin.coin_id)
+                        }
+                      }
+                    },
+                    [_vm._v("Remove")]
+                  )
+                ])
+              ])
+            ])
+          ])
+        }),
+        0
+      )
+    ]),
     _vm._v(" "),
     !_vm.coins.length
-      ? _c("div", { staticClass: "d-flex justify-content-center" }, [_vm._m(0)])
+      ? _c("div", { staticClass: "d-flex justify-content-center" }, [_vm._m(1)])
       : _vm._e()
   ])
 }
 var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("thead", { staticClass: "thead-dark" }, [
+      _c("tr", [
+        _c("th", { staticClass: "text-center border-success bg-green" }, [
+          _vm._v("Name")
+        ]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center border-success bg-green" }, [
+          _vm._v("Symbol")
+        ]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center border-success bg-green" }, [
+          _vm._v("Price $")
+        ]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center border-success bg-green" }, [
+          _vm._v("Owned $")
+        ]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center border-success bg-green" }, [
+          _vm._v("Owned #")
+        ]),
+        _vm._v(" "),
+        _c("th", { staticClass: "text-center border-success bg-green" }, [
+          _vm._v("Set #")
+        ])
+      ])
+    ])
+  },
   function() {
     var _vm = this
     var _h = _vm.$createElement

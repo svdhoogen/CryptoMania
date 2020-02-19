@@ -22,3 +22,11 @@ Route::get('/news', function () {
 Auth::routes();
 
 Route::get('/portfolio', 'HomeController@index')->name('portfolio');
+
+Route::get('/mycoins', function() {
+    $data = \App\Coin::select('coin_id', 'count')->where('owner_id', auth()->id())->get();
+    
+    $data = \App\Coin::select('coin_id', 'count')->get();
+
+    return $data;
+});

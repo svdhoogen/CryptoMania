@@ -26,6 +26,12 @@
                 <li class="nav-item @yield('news', '')">
                     <a class="nav-link" href="/news">Crypto news</a>
                 </li>
+                @guest
+                @else
+                <li class="nav-item @yield('portfolio', '')">
+                    <a class="nav-link" href="/portfolio">My crypto portfolio</a>
+                </li>
+                @endif
             </ul>
             <!-- Right Side Of Navbar -->
             <ul class="navbar-nav ml-auto">
@@ -38,14 +44,9 @@
                         <a class="nav-link" href="/register">Register</a>
                     </li>
                 @else
-                    <li class="nav-item @yield('portfolio', '')">
-                        <a class="nav-link" href="/portfolio">My posts</a>
-                    </li>
-
                     <li class="nav-item">
                         <a class="nav-link" href="/logout"onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
                     </li>
-
                     <form id="logout-form" class="hidden" action="/logout" method="POST">
                         @csrf
                     </form>
