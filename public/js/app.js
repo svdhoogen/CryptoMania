@@ -408,46 +408,59 @@ __webpack_require__.r(__webpack_exports__);
 
         if (coin != null) coin.priceUsd = prices[key];
       }
+    },
+    OnScroll: function OnScroll() {
+      var _this = this;
+
+      window.onscroll = function () {
+        if (window.scrollY + window.innerHeight > document.body.scrollHeight - 1) {
+          _this.LoadMore();
+        }
+      };
+    },
+    LoadMore: function LoadMore() {
+      console.log("Loading more images!");
     }
   },
   computed: {
     // Reactive array of coins sorted by current configuration
     sortedCoins: function sortedCoins() {
-      var _this = this;
+      var _this2 = this;
 
       var filteredCoins = this.coins;
       if (this.filter != '') filteredCoins = this.coins.filter(function (coin) {
-        return coin.name.toLowerCase().trim().includes(_this.filter.toLowerCase().trim());
+        return coin.name.toLowerCase().trim().includes(_this2.filter.toLowerCase().trim());
       });
       console.log(this.filter);
       console.log(filteredCoins);
       return filteredCoins.sort(function (a, b) {
-        if (_this.sort == 'name' || _this.sort == 'symbol') {
+        if (_this2.sort == 'name' || _this2.sort == 'symbol') {
           var modifier = 1; // Descending, reverse order
 
-          if (_this.sortDir == 'desc') modifier = -1; // String is alphabetically later
+          if (_this2.sortDir == 'desc') modifier = -1; // String is alphabetically later
 
-          if (a[_this.sort] > b[_this.sort]) return modifier; // String is alphabetically first
+          if (a[_this2.sort] > b[_this2.sort]) return modifier; // String is alphabetically first
 
-          if (a[_this.sort] < b[_this.sort]) return -modifier; // Strings are equal
+          if (a[_this2.sort] < b[_this2.sort]) return -modifier; // Strings are equal
 
           return 0;
         } // Return sorting order
 
 
-        if (_this.sortDir == 'asc') return a[_this.sort] - b[_this.sort];else return b[_this.sort] - a[_this.sort];
+        if (_this2.sortDir == 'asc') return a[_this2.sort] - b[_this2.sort];else return b[_this2.sort] - a[_this2.sort];
       });
     }
   },
   mounted: function mounted() {
-    var _this2 = this;
+    var _this3 = this;
 
-    // Retrieve initial coin data + initialize web socket when done
+    this.OnScroll(); // Retrieve initial coin data + initialize web socket when done
+
     axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("https://api.coincap.io/v2/assets").then(function (response) {
-      _this2.coins = response.data.data;
-      console.log(_this2.coins); // Normalize values to 2 decimals
+      _this3.coins = response.data.data;
+      console.log(_this3.coins); // Normalize values to 2 decimals
 
-      _this2.coins.forEach(function (coin) {
+      _this3.coins.forEach(function (coin) {
         coin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
         coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
         coin.changePercent24Hr = parseFloat(coin.changePercent24Hr).toFixed(2);
@@ -457,7 +470,7 @@ __webpack_require__.r(__webpack_exports__);
 
       var assets = []; // Constructs list of all assets, using coin id + ','
 
-      _this2.coins.forEach(function (coin) {
+      _this3.coins.forEach(function (coin) {
         assets.push(coin.id + ',');
       }); // Init websocket from adress with all 200 assets
 
@@ -465,7 +478,7 @@ __webpack_require__.r(__webpack_exports__);
       var priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets); // On price update, update prices
 
       priceUpdate.onmessage = function (msg) {
-        return _this2.UpdatePrices(JSON.parse(msg.data));
+        return _this3.UpdatePrices(JSON.parse(msg.data));
       };
 
       ;

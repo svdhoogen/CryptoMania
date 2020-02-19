@@ -10,6 +10,11 @@ class User extends Authenticatable
 {
     use Notifiable;
 
+    public function coins()
+    {
+        return $this->hasMany(Coin::class, 'owner_id');
+    }
+
     /**
      * The attributes that are mass assignable.
      *

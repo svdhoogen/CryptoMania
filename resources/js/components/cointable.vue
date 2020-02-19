@@ -80,6 +80,18 @@
                     if (coin != null)
                         coin.priceUsd = prices[key]
                 }
+            },
+
+            OnScroll() {
+                window.onscroll = () => {
+                    if (window.scrollY + window.innerHeight > document.body.scrollHeight - 1) {
+                        this.LoadMore();
+                    }
+                }
+            },
+
+            LoadMore() {
+                console.log("Loading more images!");
             }
         },
 
@@ -126,6 +138,8 @@
         },
 
         mounted() {
+            this.OnScroll();
+
             // Retrieve initial coin data + initialize web socket when done
             Axios.get("https://api.coincap.io/v2/assets").then((response) => {
                 this.coins = response.data.data;
