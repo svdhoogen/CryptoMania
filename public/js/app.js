@@ -325,46 +325,144 @@ __webpack_require__.r(__webpack_exports__);
   name: "coinportfolio",
   data: function data() {
     return {
-      coins: [],
-      myCoins: []
+      myCoins: [],
+      coins: []
     };
   },
   methods: {
-    UpdateAmount: function UpdateAmount(coin) {
-      console.log("Updating " + coin);
+    // When user wants to update coin amount
+    UpdateCoinAmount: function UpdateCoinAmount(coinId) {
+      var _this = this;
+
+      // Retrieve new value form input
+      var newAmount = this.$refs['amount-' + coinId][0].value; // Retrieve coin to update
+
+      var myCoin = this.myCoins.find(function (myCoin) {
+        return myCoin.coin_id === coinId;
+      }); // Check if new amount is valid
+
+      if (myCoin == undefined || newAmount == undefined || isNaN(newAmount) || parseFloat(newAmount) <= 0 || myCoin.count == newAmount) {
+        console.log("ERROR: Tried to parse amount entered, but value was empty, not a valid float or equal to current amount!");
+        return;
+      }
+
+      console.log("Updating " + myCoin.coin_id + " to new amount: " + parseFloat(newAmount)); // Create form data
+
+      var formData = new FormData();
+      formData.append("coin_id", myCoin.coin_id);
+      formData.append("count", newAmount); // Send post request to update coin amount
+
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post("/mycoins", formData).then(function (response) {
+        return _this.CoinAmountUpdated(response, myCoin);
+      });
+    },
+    // When coin amount has been updated
+    CoinAmountUpdated: function CoinAmountUpdated(response, myCoin) {
+      console.log(response); // Get new amount
+
+      var newAmount = response.data; // Check if amount is valid
+
+      if (newAmount == undefined || newAmount == '' || isNaN(newAmount) || parseFloat(newAmount) <= 0) {
+        console.log("ERROR: Tried to parse new coin amount, but returned value isn't valid!");
+        return;
+      }
+
+      console.log("Succesfully updated coin amount to: " + newAmount + "!"); // Update local count
+
+      myCoin.count = newAmount;
+    },
+    // When user wants to remove a coin
+    RemoveCoin: function RemoveCoin(coinId) {
+      var _this2 = this;
+
+      console.log("Removing " + coinId); // Retrieve coin to delete
+
+      var myCoin = this.myCoins.find(function (myCoin) {
+        return myCoin.coin_id === coinId;
+      }); // Check if coin found
+
+      if (myCoin == undefined) {
+        console.log("ERROR: Tried to retrieve coin to delete, but coin was not found!");
+        return;
+      } // Send delete request to delete coin
+
+
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a["delete"]("/mycoins/" + myCoin.coin_id).then(function (response) {
+        return _this2.CoinRemoved(response);
+      });
+    },
+    // When coin has been removed
+    CoinRemoved: function CoinRemoved(response) {
+      console.log(response); // Get coin id
+
+      var coinId = response.data; // Check if id is valid
+
+      if (coinId == undefined || coinId == '') {
+        console.log("ERROR: Tried to parse deleted coin, but returned coin id isn't valid!");
+        return;
+      } // Retrieve coin to delete
+
+
+      var myCoin = this.myCoins.find(function (myCoin) {
+        return myCoin.coin_id === coinId;
+      }); // Check if coin found
+
+      if (myCoin == undefined) {
+        console.log("ERROR: Tried to retrieve coin which was delete, but coin was not found!");
+        return;
+      } // Null coin
+
+
+      myCoin = null;
+    },
+    // Retrieved my coins
+    MyCoinsRetrieved: function MyCoinsRetrieved(response) {
+      var _this3 = this;
+
+      // Set data
+      this.myCoins = response.data;
+      console.log("Retrieved my coins successfully!"); // Coin cap url
+
+      var coinCapUrl = 'https://api.coincap.io/v2/assets?ids='; // Add each id to coin cap url
+
+      this.myCoins.forEach(function (coin) {
+        coinCapUrl += coin.coin_id + ',';
+      });
+      console.log("Getting coin data about my coins from url: " + coinCapUrl); // Retrieve coin data
+
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get(coinCapUrl).then(function (response) {
+        return _this3.CoinDataRetrieved(response);
+      });
+    },
+    // When coin data retrieved, add data from coins to my coin array
+    CoinDataRetrieved: function CoinDataRetrieved(response) {
+      var _this4 = this;
+
+      response.data.data.forEach(function (coin) {
+        // Find coin by id
+        var myCoin = _this4.myCoins.find(function (myCoin) {
+          return myCoin.coin_id === coin.id;
+        }); // Update price if coin found
+
+
+        if (myCoin != null) {
+          myCoin.name = coin.name;
+          myCoin.symbol = coin.symbol;
+          myCoin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
+        }
+      }); // Set coins
+
+      this.coins = this.myCoins;
+      console.log("Retrieved data for my coins successfully!");
+      console.log(this.coins);
     }
   },
   computed: {},
   mounted: function mounted() {
-    var _this = this;
+    var _this5 = this;
 
-    // Retrieve my coins
     axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/mycoins").then(function (response) {
-      _this.myCoins = response.data;
-      console.log(_this.myCoins); // Get all id's
-
-      var coinCapUrl = 'https://api.coincap.io/v2/assets?ids='; // Constructs list of all assets, using coin id + ','
-
-      _this.myCoins.forEach(function (coin) {
-        coinCapUrl += coin.coin_id + ',';
-      });
-
-      console.log("Getting coin data from url: " + coinCapUrl); // Retrieve coin data for owned coins
-
-      axios__WEBPACK_IMPORTED_MODULE_0___default.a.get(coinCapUrl).then(function (response) {
-        _this.coins = response.data.data;
-        response.data.data.forEach(function (coin) {
-          // Find coin by id
-          var myCoin = _this.myCoins.find(function (myCoin) {
-            return myCoin.coin_id === coin.id;
-          }); // Update price if coin found
-
-
-          if (myCoin != null) myCoin.name = coin.name;
-          myCoin.symbol = coin.symbol;
-          myCoin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
-        });
-      });
+      return _this5.MyCoinsRetrieved(response);
     });
   }
 });
@@ -1092,7 +1190,7 @@ var render = function() {
       _vm._v(" "),
       _c(
         "tbody",
-        _vm._l(_vm.myCoins, function(coin) {
+        _vm._l(_vm.coins, function(coin) {
           return _c("tr", { key: coin.coin_id }, [
             _c("td", [_vm._v(_vm._s(coin.name) + " ")]),
             _vm._v(" "),
@@ -1116,12 +1214,15 @@ var render = function() {
             _c("td", [
               _c("div", { staticClass: "input-group mb-3" }, [
                 _c("input", {
+                  ref: "amount-" + coin.coin_id,
+                  refInFor: true,
                   staticClass: "form-control",
                   attrs: {
                     type: "text",
                     placeholder: "Amount",
                     "aria-label": "Amount"
-                  }
+                  },
+                  domProps: { value: coin.count }
                 }),
                 _vm._v(" "),
                 _c("div", { staticClass: "input-group-append" }, [
@@ -1132,7 +1233,7 @@ var render = function() {
                       attrs: { type: "button" },
                       on: {
                         click: function($event) {
-                          return _vm.UpdateAmount(coin.coin_id)
+                          return _vm.UpdateCoinAmount(coin.coin_id)
                         }
                       }
                     },

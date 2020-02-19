@@ -23,6 +23,9 @@ class HomeController extends Controller
      */
     public function index()
     {
+        if (!auth())
+            return redirect('/');
+            
         return view('coins/portfolio');
     }
 }
