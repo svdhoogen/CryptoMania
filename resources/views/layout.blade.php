@@ -20,10 +20,10 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item  @yield('home', '')">
+                <li class="nav-item @yield('index', '')">
                     <a class="nav-link" href="/">Crypto table</a>
                 </li>
-                <li class="nav-item  @yield('news', '')">
+                <li class="nav-item @yield('news', '')">
                     <a class="nav-link" href="/news">Crypto news</a>
                 </li>
             </ul>
@@ -39,17 +39,17 @@
                     </li>
                 @else
                     <li class="nav-item dropdown">
-                        <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button"
+                        <a id="navbarDropdown" class="nav-link dropdown-toggle @yield('home', '')" href="#" role="button"
                            data-toggle="dropdown">
                             {{ Auth::user()->name }} <span class="caret"></span>
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/home">
+                            <a class="dropdown-item dropdown-item-green" href="/home">
                                 My posts
                             </a>
 
-                            <a class="dropdown-item" href="/logout"
+                            <a class="dropdown-item dropdown-item-green" href="/logout"
                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 Logout
                             </a>
