@@ -8,11 +8,11 @@
                     <th class="text-center border-success bg-green">Price $</th>
                     <th class="text-center border-success bg-green">Owned $</th>
                     <th class="text-center border-success bg-green">Owned #</th>
-                    <th class="text-center border-success bg-green">Set #</th>
+                    <th class="text-center border-success bg-green">Set # owned</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="coin in coins" :key="coin.coin_id">
+                <tr v-for="coin in myCoins" :key="coin.coin_id">
                     <td>{{ coin.name }} </td>
                     <td><img class="mr-2" height="20" :src="'images/coin-logos/' + coin.coin_id + '.png'" />{{ coin.symbol }}</td>
                     <td>{{ coin.priceUsd }}</td>
@@ -21,9 +21,11 @@
                     <td>
                         <div class="input-group mb-3">
                             <input :ref="'amount-' + coin.coin_id" class="form-control" :value="coin.count" type="text" placeholder="Amount" aria-label="Amount">
+
                             <div class="input-group-append">
                                 <button @click="UpdateCoinAmount(coin.coin_id)" class="btn btn-outline-success" type="button">Set # owned</button>
                             </div>
+
                             <div class="input-group-append">
                                 <button @click="RemoveCoin(coin.coin_id)" class="btn btn-outline-danger" type="button">Remove</button>
                             </div>
@@ -34,7 +36,7 @@
         </table>
 
         <!-- Loading spinner animation -->
-        <div class="d-flex justify-content-center" v-if="!coins.length">
+        <div class="d-flex justify-content-center" v-if="!myCoins.length">
             <div class="spinner-border text-success" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
@@ -51,7 +53,6 @@
         data() {
             return {
                 myCoins: [],
-                coins: []
             }
         },
 
@@ -129,24 +130,25 @@
                     console.log("ERROR: Tried to parse deleted coin, but returned coin id isn't valid!");
                     return;
                 }
+                
+                // Remove element from my coins array
+                this.myCoins.splice(this.myCoins.findIndex(coin => coin.coin_id == coinId), 1);
 
-                // Retrieve coin to delete
-                var myCoin = this.myCoins.find(myCoin => myCoin.coin_id === coinId);
-
-                // Check if coin found
-                if (myCoin == undefined) {
-                    console.log("ERROR: Tried to retrieve coin which was delete, but coin was not found!");
-                    return;
-                }
-
-                // Null coin
-                myCoin = null;
+                // No more coins, redirect user
+                if (myCoins.length == 0)
+                    this.RedirectUser();
             },
 
             // Retrieved my coins
             MyCoinsRetrieved(response) {
                 // Set data
                 this.myCoins = response.data;
+
+                // No coins retrieved, redirect user
+                if (this.myCoins == undefined || this.myCoins.length == 0) {
+                    this.RedirectUser();
+                    return;
+                }
 
                 console.log("Retrieved my coins successfully!");
 
@@ -176,15 +178,15 @@
                     }
                 });
 
-                // Set coins
-                this.coins = this.myCoins;
+                // Force update
+                this.$forceUpdate();
 
                 console.log("Retrieved data for my coins successfully!");
-                console.log(this.coins);
-            }
-        },
+            },
 
-        computed:{
+            RedirectUser() {
+                window.location.href = "/";
+            }
         },
 
         mounted() {

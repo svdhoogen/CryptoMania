@@ -61,12 +61,58 @@ Route::post('/mycoins', function() {
     return $coin->count;
 });
 
-Route::delete('/mycoins/{coinId}', function($coinId) {
+Route::get('/mycoins/{coinId}', function($coinId) {
     // Check if logged in
     if (!auth())
         abort(403, 'Unauthorized');
 
-    Log::emergency($coinId);
+    // Get coin
+    $coin = \App\Coin::where([['owner_id', auth()->id()], ['coin_id', $coinId]])->first();
+
+    // Null check
+    if ($coin == null)
+        return '';
+
+    // Return coin count
+    return $coin->count;
+});
+
+Route::post('/mycoins/{coinId}', function($coinId) {
+    // Check if logged in
+    if (!auth())
+        abort(403, 'Unauthorized');
+
+    // Validate request
+    request()->validate([
+        'count' => ['required', 'numeric', "min:0", "not_in:0"]
+    ]);
+
+    // Get coin
+    $coin = \App\Coin::where([['owner_id', auth()->id()], ['coin_id', $coinId]])->first();
+
+    // Null check
+    if ($coin == null) {
+        $coin = new \App\Coin();
+
+        $coin['owner_id'] = auth()->id();
+
+        $coin['coin_id'] = $coinId;
+    }
+
+    // Set count
+    $coin['count'] = request('count');
+
+    // Save updated coin
+    $coin->save();
+
+    // Return coin count
+    return $coin->count;
+});
+
+Route::delete('/mycoins/{coinId}', function($coinId) {
+    // Check if logged in
+    if (!auth())
+        abort(403, 'Unauthorized');
 
     // Get coin
     $coin = \App\Coin::where([['owner_id', auth()->id()], ['coin_id', $coinId]])->first();
