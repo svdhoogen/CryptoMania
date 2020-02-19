@@ -80,6 +80,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 
@@ -88,6 +100,9 @@ __webpack_require__.r(__webpack_exports__);
   name: "coinmodal",
   components: {
     LineChart: _LineChart_js__WEBPACK_IMPORTED_MODULE_0__["default"]
+  },
+  props: {
+    loggedin: String
   },
   data: function data() {
     return {
@@ -109,55 +124,103 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    GetCoinHistory: function GetCoinHistory() {
+    // Handle coin history when received
+    CoinHistoryReceived: function CoinHistoryReceived(response) {
+      console.log(response);
+
+      for (var index = response.data.data.length - 1; index > 0; index -= 7) {
+        this.chartData.labels.push(moment__WEBPACK_IMPORTED_MODULE_1___default()(response.data.data[index].time).format('LL'));
+        this.chartData.datasets[0].data.push(response.data.data[index].priceUsd);
+      }
+
+      this.chartData.labels.reverse();
+      this.chartData.datasets[0].data.reverse();
+      console.log("Succesfully set chart data!");
+      console.log(this.chartData);
+    },
+    // Handle my coin data when received
+    MyCoinDataReceived: function MyCoinDataReceived(response) {
+      console.log(response);
+      var amount = response.data;
+
+      if (amount == undefined || isNaN(amount) || parseFloat(amount) <= 0) {
+        console.log("ERROR: Tried to parse received coin count, but value was empty, not a valid float or <= 0!");
+        return;
+      }
+
+      console.log("Succesfully set coin count!"); // Update count
+
+      this.$refs['amount'].value = amount;
+    },
+    // Present modal to user
+    PresentModal: function PresentModal(coin) {
       var _this = this;
 
+      // Update current coin
+      this.coin = coin;
+      console.log("Requesting coin history for coin: " + this.coin.id); // Get coin history
+
       axios__WEBPACK_IMPORTED_MODULE_2___default.a.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1").then(function (response) {
-        console.log(response.data.data); //var index = 0;
+        return _this.CoinHistoryReceived(response);
+      }); // Get my coin data
 
-        for (var index = response.data.data.length - 1; index > 0; index -= 7) {
-          _this.chartData.labels.push(moment__WEBPACK_IMPORTED_MODULE_1___default()(response.data.data[index].time).format('LL'));
+      if (this.loggedin) {
+        console.log("Logged in so requestion my coin count for: " + this.coin.id);
+        axios__WEBPACK_IMPORTED_MODULE_2___default.a.get("/mycoins/" + coin.id).then(function (response) {
+          return _this.MyCoinDataReceived(response);
+        });
+      }
 
-          _this.chartData.datasets[0].data.push(response.data.data[index].priceUsd);
-        }
+      console.log("Presenting modal for coin: " + coin.id); // Show modal
 
-        _this.chartData.labels.reverse();
+      jquery__WEBPACK_IMPORTED_MODULE_3___default()('#modal').modal('show');
+    },
+    // Reset modal completely
+    ResetModal: function ResetModal() {
+      // Reset amount
+      this.$refs['amount'].value = ""; // Reset coin
 
-        _this.chartData.datasets[0].data.reverse(); // Add weekly data to chart data, by adding one and skipping 6
+      this.coin = []; // Reset chart data
 
-        /*response.data.data.forEach(data => {
-            if (index == 0) {
-                this.chartData.labels.push(moment(data.time).format('LL'));
-                this.chartData.datasets[0].data.push(data.priceUsd);
-            }
-             index++;
-             if (index == 6)
-                index = 0;
-        }) */
+      this.chartData.labels = [];
+      this.chartData.datasets[0].data = [];
+      console.log("Hiding modal!!!!!");
+    },
+    // When user wants to update coin amount
+    UpdateCoinAmount: function UpdateCoinAmount() {
+      var _this2 = this;
 
+      // Retrieve new value form input
+      var newAmount = this.$refs['amount'].value; // Check if new amount is valid
 
-        console.log(_this.chartData);
+      if (newAmount == undefined || isNaN(newAmount) || parseFloat(newAmount) <= 0 || this.coin.count == newAmount) {
+        console.log("ERROR: Tried to parse amount entered, but value was empty, not a valid float or equal to current amount!");
+        return;
+      }
+
+      console.log("Updating " + this.coin.id + " to new amount: " + parseFloat(newAmount)); // Create form data
+
+      var formData = new FormData();
+      formData.append("count", newAmount); // Send post request to update coin amount
+
+      axios__WEBPACK_IMPORTED_MODULE_2___default.a.post("/mycoins/" + this.coin.id, formData).then(function (response) {
+        return _this2.CoinAmountUpdated(response, _this2.coin.id);
       });
     },
-    PresentModal: function PresentModal(coin) {
-      this.coin = coin;
-      console.log("Presenting modal for coin: " + coin.id);
-      jquery__WEBPACK_IMPORTED_MODULE_3___default()('#modal').modal('show');
-      this.GetCoinHistory();
-    },
-    ResetModal: function ResetModal() {
-      this.coin = [];
-      this.chartData = {
-        labels: [],
-        datasets: [{
-          label: 'Price past 2 years',
-          data: [],
-          borderColor: "#21bb45",
-          backgroundColor: "rgba(44, 211, 83, 0.2)",
-          pointBackgroundColor: "#39e661"
-        }]
-      };
-      console.log("Hiding modal!!!!!");
+    // When coin amount has been updated
+    CoinAmountUpdated: function CoinAmountUpdated(response, coinId) {
+      console.log(response); // Get new amount
+
+      var newAmount = response.data; // Check if amount is valid
+
+      if (newAmount == undefined || newAmount == '' || isNaN(newAmount) || parseFloat(newAmount) <= 0 || this.coin.id != coinId) {
+        console.log("ERROR: Tried to parse new coin amount, but returned value isn't valid or a new coin is shown!");
+        return;
+      } // Update count
+
+
+      this.$refs['amount'].value = newAmount;
+      console.log("Succesfully updated coin amount to: " + newAmount + "!");
     }
   },
   mounted: function mounted() {
@@ -320,13 +383,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "coinportfolio",
   data: function data() {
     return {
-      myCoins: [],
-      coins: []
+      myCoins: []
     };
   },
   methods: {
@@ -400,27 +464,27 @@ __webpack_require__.r(__webpack_exports__);
       if (coinId == undefined || coinId == '') {
         console.log("ERROR: Tried to parse deleted coin, but returned coin id isn't valid!");
         return;
-      } // Retrieve coin to delete
+      } // Remove element from my coins array
 
 
-      var myCoin = this.myCoins.find(function (myCoin) {
-        return myCoin.coin_id === coinId;
-      }); // Check if coin found
+      this.myCoins.splice(this.myCoins.findIndex(function (coin) {
+        return coin.coin_id == coinId;
+      }), 1); // No more coins, redirect user
 
-      if (myCoin == undefined) {
-        console.log("ERROR: Tried to retrieve coin which was delete, but coin was not found!");
-        return;
-      } // Null coin
-
-
-      myCoin = null;
+      if (myCoins.length == 0) this.RedirectUser();
     },
     // Retrieved my coins
     MyCoinsRetrieved: function MyCoinsRetrieved(response) {
       var _this3 = this;
 
       // Set data
-      this.myCoins = response.data;
+      this.myCoins = response.data; // No coins retrieved, redirect user
+
+      if (this.myCoins == undefined || this.myCoins.length == 0) {
+        this.RedirectUser();
+        return;
+      }
+
       console.log("Retrieved my coins successfully!"); // Coin cap url
 
       var coinCapUrl = 'https://api.coincap.io/v2/assets?ids='; // Add each id to coin cap url
@@ -450,14 +514,15 @@ __webpack_require__.r(__webpack_exports__);
           myCoin.symbol = coin.symbol;
           myCoin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
         }
-      }); // Set coins
+      }); // Force update
 
-      this.coins = this.myCoins;
+      this.$forceUpdate();
       console.log("Retrieved data for my coins successfully!");
-      console.log(this.coins);
+    },
+    RedirectUser: function RedirectUser() {
+      window.location.href = "/";
     }
   },
-  computed: {},
   mounted: function mounted() {
     var _this5 = this;
 
@@ -1011,14 +1076,43 @@ var render = function() {
                 ])
               ]),
               _vm._v(" "),
-              !_vm.chartData.labels.length
+              _vm.loggedin
                 ? _c(
                     "div",
                     {
                       staticClass:
-                        "d-flex col-md-12 justify-content-center mt-3"
+                        "input-group col-md-6 justify-content-center mt-3 mb-3"
                     },
-                    [_vm._m(1)]
+                    [
+                      _c("input", {
+                        ref: "amount",
+                        staticClass: "form-control",
+                        attrs: {
+                          value: "",
+                          type: "text",
+                          placeholder: "Amount",
+                          "aria-label": "Amount"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "input-group-append" }, [
+                        _c(
+                          "button",
+                          {
+                            staticClass: "btn btn-outline-success",
+                            attrs: { type: "button" },
+                            on: {
+                              click: function($event) {
+                                return _vm.UpdateCoinAmount()
+                              }
+                            }
+                          },
+                          [_vm._v("Set # owned")]
+                        )
+                      ]),
+                      _vm._v(" "),
+                      _vm._m(1)
+                    ]
                   )
                 : _vm._e(),
               _vm._v(" "),
@@ -1036,7 +1130,18 @@ var render = function() {
                     : _vm._e()
                 ],
                 1
-              )
+              ),
+              _vm._v(" "),
+              !_vm.chartData.labels.length
+                ? _c(
+                    "div",
+                    {
+                      staticClass:
+                        "d-flex col-md-12 justify-content-center mt-3"
+                    },
+                    [_vm._m(2)]
+                  )
+                : _vm._e()
             ])
           ])
         ]
@@ -1061,6 +1166,21 @@ var staticRenderFns = [
       },
       [_c("span", { attrs: { "aria-hidden": "true" } }, [_vm._v("×")])]
     )
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "input-group-append" }, [
+      _c(
+        "a",
+        {
+          staticClass: "btn btn-outline-success",
+          attrs: { href: "/portfolio" }
+        },
+        [_vm._v("Manage coins")]
+      )
+    ])
   },
   function() {
     var _vm = this
@@ -1190,7 +1310,7 @@ var render = function() {
       _vm._v(" "),
       _c(
         "tbody",
-        _vm._l(_vm.coins, function(coin) {
+        _vm._l(_vm.myCoins, function(coin) {
           return _c("tr", { key: coin.coin_id }, [
             _c("td", [_vm._v(_vm._s(coin.name) + " ")]),
             _vm._v(" "),
@@ -1264,7 +1384,7 @@ var render = function() {
       )
     ]),
     _vm._v(" "),
-    !_vm.coins.length
+    !_vm.myCoins.length
       ? _c("div", { staticClass: "d-flex justify-content-center" }, [_vm._m(1)])
       : _vm._e()
   ])
@@ -1297,7 +1417,7 @@ var staticRenderFns = [
         ]),
         _vm._v(" "),
         _c("th", { staticClass: "text-center border-success bg-green" }, [
-          _vm._v("Set #")
+          _vm._v("Set # owned")
         ])
       ])
     ])
