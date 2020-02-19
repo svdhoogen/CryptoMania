@@ -31,34 +31,24 @@
             <ul class="navbar-nav ml-auto">
                 <!-- Authentication Links -->
                 @guest
-                    <li class="nav-item">
-                        <a class="nav-link @yield('login', '')" href="/login">Login</a>
+                    <li class="nav-item @yield('login', '')">
+                        <a class="nav-link" href="/login">Login</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link @yield('register', '')" href="/register">Register</a>
+                    <li class="nav-item @yield('register', '')">
+                        <a class="nav-link" href="/register">Register</a>
                     </li>
                 @else
-                    <li class="nav-item dropdown">
-                        <a id="navbarDropdown" class="nav-link dropdown-toggle @yield('home', '')" href="#" role="button"
-                           data-toggle="dropdown">
-                            {{ Auth::user()->name }} <span class="caret"></span>
-                        </a>
-
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item dropdown-item-green" href="/home">
-                                My posts
-                            </a>
-
-                            <a class="dropdown-item dropdown-item-green" href="/logout"
-                               onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                Logout
-                            </a>
-
-                            <form id="logout-form" class="hidden" action="/logout" method="POST">
-                                @csrf
-                            </form>
-                        </div>
+                    <li class="nav-item @yield('portfolio', '')">
+                        <a class="nav-link" href="/portfolio">My posts</a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout"onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+                    </li>
+
+                    <form id="logout-form" class="hidden" action="/logout" method="POST">
+                        @csrf
+                    </form>
                 @endguest
             </ul>
         </div>

@@ -12,13 +12,13 @@
 */
 
 Route::get('/', function () {
-    return view('index');
+    return view('coins/index');
 });
 
 Route::get('/news', function () {
-    return view('news');
+    return view('coins/news');
 });
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/portfolio', 'HomeController@index')->name('portfolio');
