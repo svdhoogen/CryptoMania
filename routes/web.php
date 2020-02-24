@@ -32,7 +32,7 @@ Route::get('/mycoins', function() {
     return $data;
 });
 
-
+// Adds coin to user portfolio
 Route::post('/mycoins', function() {
     // Check if logged in
     if (!auth())
@@ -61,6 +61,7 @@ Route::post('/mycoins', function() {
     return $coin->count;
 });
 
+// Returns coin count
 Route::get('/mycoins/{coinId}', function($coinId) {
     // Check if logged in
     if (!auth())
@@ -77,6 +78,7 @@ Route::get('/mycoins/{coinId}', function($coinId) {
     return $coin->count;
 });
 
+// Updates coin count
 Route::post('/mycoins/{coinId}', function($coinId) {
     // Check if logged in
     if (!auth())
@@ -109,6 +111,7 @@ Route::post('/mycoins/{coinId}', function($coinId) {
     return $coin->count;
 });
 
+// Removes coin from user's portfolio
 Route::delete('/mycoins/{coinId}', function($coinId) {
     // Check if logged in
     if (!auth())

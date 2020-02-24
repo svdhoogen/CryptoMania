@@ -1,5 +1,5 @@
 <template>
-    <div class="col-md-12">
+    <div class="col-md-12" ref="these">
         <table class="bg-light table table-bordered">
             <thead class="thead-dark">
                 <tr>
@@ -19,7 +19,7 @@
                     <td>{{ coin.priceUsd * coin.count}}</td>
                     <td>{{ coin.count }}</td>
                     <td>
-                        <div class="input-group mb-3">
+                        <div class="input-group">
                             <input :ref="'amount-' + coin.coin_id" class="form-control" :value="coin.count" type="text" placeholder="Amount" aria-label="Amount">
 
                             <div class="input-group-append">
@@ -36,7 +36,7 @@
         </table>
 
         <!-- Loading spinner animation -->
-        <div class="d-flex justify-content-center" v-if="!myCoins.length">
+        <div class="d-flex justify-content-center" v-if="!myCoins.length && !noData">
             <div class="spinner-border text-success" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
@@ -46,13 +46,14 @@
 
 <script>
     import Axios from "axios";
-    
+
     export default {
         name: "coinportfolio",
 
         data() {
             return {
                 myCoins: [],
+                noData: false
             }
         },
 
@@ -79,7 +80,9 @@
                 formData.append("count", newAmount);
 
                 // Send post request to update coin amount
-                Axios.post("/mycoins", formData).then((response) => this.CoinAmountUpdated(response, myCoin));
+                Axios.post("/mycoins", formData)
+                    .then((response) => this.CoinAmountUpdated(response, myCoin))
+                    .catch((response) => console.log(response));
             },
             
             // When coin amount has been updated
@@ -99,6 +102,8 @@
 
                 // Update local count
                 myCoin.count = newAmount;
+
+                Vue.$refs.notifications.AddMessage("Succesfully updated " + myCoin.name + " amount to: " + newAmount, "alert-success", true);
             },
 
             // When user wants to remove a coin
@@ -115,7 +120,9 @@
                 }
 
                 // Send delete request to delete coin
-                Axios.delete("/mycoins/" + myCoin.coin_id).then((response) => this.CoinRemoved(response))
+                Axios.delete("/mycoins/" + myCoin.coin_id)
+                    .then((response) => this.CoinRemoved(response))
+                    .catch((response) => console.log(response));
             },
 
             // When coin has been removed
@@ -134,8 +141,12 @@
                 // Remove element from my coins array
                 this.myCoins.splice(this.myCoins.findIndex(coin => coin.coin_id == coinId), 1);
 
+                console.log("Succesfully removed coin!");
+
+                Vue.$refs.notifications.AddMessage("Succesfully removed coin from your portfolio!", "alert-success", true);
+
                 // No more coins, redirect user
-                if (myCoins.length == 0)
+                if (this.myCoins.length == 0)
                     this.RedirectUser();
             },
 
@@ -146,6 +157,7 @@
 
                 // No coins retrieved, redirect user
                 if (this.myCoins == undefined || this.myCoins.length == 0) {
+                    this.noData = true;
                     this.RedirectUser();
                     return;
                 }
@@ -161,7 +173,9 @@
                 console.log("Getting coin data about my coins from url: " + coinCapUrl);
 
                 // Retrieve coin data
-                Axios.get(coinCapUrl).then((response) => this.CoinDataRetrieved(response));
+                Axios.get(coinCapUrl)
+                    .then((response) => this.CoinDataRetrieved(response))
+                    .catch((response) => console.log(response));
             },
 
             // When coin data retrieved, add data from coins to my coin array
@@ -184,13 +198,23 @@
                 console.log("Retrieved data for my coins successfully!");
             },
 
+            // Show message to user and redirect them after 5 seconds
             RedirectUser() {
-                window.location.href = "/";
+                console.log("No coins! Redirecting user!");
+
+                console.log(Vue.$refs);
+
+                Vue.$refs.notifications.AddMessage("You have no coins! Add them from the crypto table by clicking a coin and setting amount there! Redirecting in 5 seconds...", "alert-warning", false);
+
+                // Redirect after 5 secs
+                setTimeout(function() { window.location.href = "/"; }, 10000);
             }
         },
 
         mounted() {
-            Axios.get("/mycoins").then((response) => this.MyCoinsRetrieved(response));
+            Axios.get("/mycoins")
+                .then((response) => this.MyCoinsRetrieved(response))
+                .catch((response) => console.log(response));
         }
     }
 </script>

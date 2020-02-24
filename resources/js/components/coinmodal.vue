@@ -68,6 +68,8 @@
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
+
+                    <notifications class="col-md-12 mt-4" ref="notifications"></notifications>
                 </div>
             </div>
         </div>
@@ -75,6 +77,7 @@
 </template>
 
 <script>
+    import notifications from "./notifications";
     import LineChart from "../LineChart.js";
     import moment from "moment";
     import Axios from "axios";
@@ -83,7 +86,7 @@
     export default {
         name: "coinmodal",
 
-        components: { LineChart },
+        components: { LineChart, notifications },
 
         props: {
             loggedin: String
@@ -151,12 +154,16 @@
                 console.log("Requesting coin history for coin: " + this.coin.id);
 
                 // Get coin history
-                Axios.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1").then((response) => this.CoinHistoryReceived(response));
+                Axios.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1")
+                    .then((response) => this.CoinHistoryReceived(response))
+                    .catch((response) => console.log(response));
 
                 // Get my coin data
                 if (this.loggedin) {
                     console.log("Logged in so requestion my coin count for: " + this.coin.id);
-                    Axios.get("/mycoins/" + coin.id).then((response) => this.MyCoinDataReceived(response));
+                    Axios.get("/mycoins/" + coin.id)
+                        .then((response) => this.MyCoinDataReceived(response))
+                        .catch((response) => console.log(response));
                 }
 
                 console.log("Presenting modal for coin: " + coin.id)
@@ -198,7 +205,9 @@
                 formData.append("count", newAmount);
 
                 // Send post request to update coin amount
-                Axios.post("/mycoins/" + this.coin.id, formData).then((response) => this.CoinAmountUpdated(response, this.coin.id));
+                Axios.post("/mycoins/" + this.coin.id, formData)
+                    .then((response) => this.CoinAmountUpdated(response, this.coin.id))
+                    .catch((response) => console.log(response));
             },
 
             // When coin amount has been updated
@@ -216,6 +225,9 @@
 
                 // Update count
                 this.$refs['amount'].value = newAmount;
+                
+            
+                this.$refs.notifications.AddMessage("You now own " + newAmount + " coins of id coinId!", "alert-success", true);
                 
                 console.log("Succesfully updated coin amount to: " + newAmount + "!");
             }

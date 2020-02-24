@@ -43,38 +43,22 @@
         },
 
         methods: {
-            GetNewsData () {
-                Axios.get("https://cryptocontrol.io/api/v1/public/news?language=en", { 'headers': { 'x-api-key': "ca309c24e5710df683fcfbeb52ebd9fd" } }).then((response) => {
-                    this.data = response.data;
-                    this.data.forEach(news => {
-                        news.publishedAt = moment(news.publishedAt).format('LL');
-                    });
-                    
-                    console.log(this.data);
+            // Handle news data when received
+            NewsDataReceived (response) {
+                this.data = response.data;
+
+                this.data.forEach(news => {
+                    news.publishedAt = moment(news.publishedAt).format('LL');
                 });
+                
+                console.log(this.data);
             },
         },
 
         mounted() {
-            this.GetNewsData();
+            Axios.get("https://cryptocontrol.io/api/v1/public/news?language=en", { 'headers': { 'x-api-key': "ca309c24e5710df683fcfbeb52ebd9fd" } })
+                .then((response) => this.NewsDataReceived(response))
+                .catch((response) => console.log(response));
         }
-
-        /*
-            _id: (...)
-            hotness: 73233.99238355865
-            activityHotness: (...)
-            primaryCategory: (...)
-            words: (...)
-            similarArticles: (...)
-            coins: (...)
-            description: (...)
-            publishedAt: (...)
-            title: (...)
-            url: (...)
-            source: (...)
-            thumbnail: (...)
-            sourceDomain: (...)
-            originalImageUrl: (...)
-        */
     }
 </script>

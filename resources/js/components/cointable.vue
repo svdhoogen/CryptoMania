@@ -50,6 +50,38 @@
         },
 
         methods: {
+            // When initial coin data has been received, handle data + initialize web socket
+            CoinDataReceived(response) {
+                this.coins = response.data.data;
+
+                console.log(this.coins);
+
+                // Normalize values to 2 decimals
+                this.coins.forEach(coin => {
+                    coin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
+                    coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
+                    coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
+                    coin.volumeUsd24Hr =  parseFloat(coin.volumeUsd24Hr).toFixed(2);
+                    coin.supply =  parseFloat(coin.supply).toFixed(2);
+                });
+
+                this.InitializeWebSocket();
+            },
+
+            // Initializes web socket for live updated prices
+            InitializeWebSocket() {
+                var assets = [];
+
+                // Constructs list of all assets, using coin id + ','
+                this.coins.forEach(coin => { assets.push(coin.id + ','); })
+
+                // Init websocket from adress with all 200 assets
+                const priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets);
+
+                // On price update, update prices
+                priceUpdate.onmessage = (msg) => this.UpdatePrices(JSON.parse(msg.data));;
+            },
+
             // Emits show graph event with corresponding coin
             ShowGraph(coin) {
                 console.log("Raising show graph event for coin: " + coin);
@@ -82,16 +114,15 @@
                 }
             },
 
+            // When user scrolls, check if reached the bottom and load more coins if he has
             OnScroll() {
-                window.onscroll = () => {
-                    if (window.scrollY + window.innerHeight > document.body.scrollHeight - 1) {
-                        this.LoadMore();
-                    }
-                }
+                if (window.scrollY + window.innerHeight > document.body.scrollHeight - 1)
+                    this.LoadMoreCoins();
             },
 
-            LoadMore() {
-                console.log("Loading more images!");
+            // Load more coins
+            LoadMoreCoins() {
+                console.log("Loading more coins!");
             }
         },
 
@@ -138,34 +169,12 @@
         },
 
         mounted() {
-            this.OnScroll();
+            window.onscroll = () => this.OnScroll();
 
             // Retrieve initial coin data + initialize web socket when done
-            Axios.get("https://api.coincap.io/v2/assets").then((response) => {
-                this.coins = response.data.data;
-
-                console.log(this.coins);
-
-                // Normalize values to 2 decimals
-                this.coins.forEach(coin => {
-                    coin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
-                    coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
-                    coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
-                    coin.volumeUsd24Hr =  parseFloat(coin.volumeUsd24Hr).toFixed(2);
-                    coin.supply =  parseFloat(coin.supply).toFixed(2);
-                });
-
-                var assets = [];
-
-                // Constructs list of all assets, using coin id + ','
-                this.coins.forEach(coin => { assets.push(coin.id + ','); })
-
-                // Init websocket from adress with all 200 assets
-                const priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets);
-
-                // On price update, update prices
-                priceUpdate.onmessage = (msg) => this.UpdatePrices(JSON.parse(msg.data));;
-            });
+            Axios.get("https://api.coincap.io/v2/assets")
+                .then((response) => this.CoinDataReceived(response))
+                .catch((response) => console.log(response));
         }
     }
 </script>

@@ -9,13 +9,14 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _LineChart_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../LineChart.js */ "./resources/js/LineChart.js");
-/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
-/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./notifications */ "./resources/js/components/notifications.vue");
+/* harmony import */ var _LineChart_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../LineChart.js */ "./resources/js/LineChart.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+/* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js");
+/* harmony import */ var jquery__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(jquery__WEBPACK_IMPORTED_MODULE_4__);
 //
 //
 //
@@ -92,6 +93,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+
 
 
 
@@ -99,7 +103,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "coinmodal",
   components: {
-    LineChart: _LineChart_js__WEBPACK_IMPORTED_MODULE_0__["default"]
+    LineChart: _LineChart_js__WEBPACK_IMPORTED_MODULE_1__["default"],
+    notifications: _notifications__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   props: {
     loggedin: String
@@ -129,7 +134,7 @@ __webpack_require__.r(__webpack_exports__);
       console.log(response);
 
       for (var index = response.data.data.length - 1; index > 0; index -= 7) {
-        this.chartData.labels.push(moment__WEBPACK_IMPORTED_MODULE_1___default()(response.data.data[index].time).format('LL'));
+        this.chartData.labels.push(moment__WEBPACK_IMPORTED_MODULE_2___default()(response.data.data[index].time).format('LL'));
         this.chartData.datasets[0].data.push(response.data.data[index].priceUsd);
       }
 
@@ -160,20 +165,24 @@ __webpack_require__.r(__webpack_exports__);
       this.coin = coin;
       console.log("Requesting coin history for coin: " + this.coin.id); // Get coin history
 
-      axios__WEBPACK_IMPORTED_MODULE_2___default.a.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1").then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("https://api.coincap.io/v2/assets/" + this.coin.id + "/history?interval=d1").then(function (response) {
         return _this.CoinHistoryReceived(response);
+      })["catch"](function (response) {
+        return console.log(response);
       }); // Get my coin data
 
       if (this.loggedin) {
         console.log("Logged in so requestion my coin count for: " + this.coin.id);
-        axios__WEBPACK_IMPORTED_MODULE_2___default.a.get("/mycoins/" + coin.id).then(function (response) {
+        axios__WEBPACK_IMPORTED_MODULE_3___default.a.get("/mycoins/" + coin.id).then(function (response) {
           return _this.MyCoinDataReceived(response);
+        })["catch"](function (response) {
+          return console.log(response);
         });
       }
 
       console.log("Presenting modal for coin: " + coin.id); // Show modal
 
-      jquery__WEBPACK_IMPORTED_MODULE_3___default()('#modal').modal('show');
+      jquery__WEBPACK_IMPORTED_MODULE_4___default()('#modal').modal('show');
     },
     // Reset modal completely
     ResetModal: function ResetModal() {
@@ -203,8 +212,10 @@ __webpack_require__.r(__webpack_exports__);
       var formData = new FormData();
       formData.append("count", newAmount); // Send post request to update coin amount
 
-      axios__WEBPACK_IMPORTED_MODULE_2___default.a.post("/mycoins/" + this.coin.id, formData).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_3___default.a.post("/mycoins/" + this.coin.id, formData).then(function (response) {
         return _this2.CoinAmountUpdated(response, _this2.coin.id);
+      })["catch"](function (response) {
+        return console.log(response);
       });
     },
     // When coin amount has been updated
@@ -220,12 +231,13 @@ __webpack_require__.r(__webpack_exports__);
 
 
       this.$refs['amount'].value = newAmount;
+      this.$refs.notifications.AddMessage("You now own " + newAmount + " coins of id coinId!", "alert-success", true);
       console.log("Succesfully updated coin amount to: " + newAmount + "!");
     }
   },
   mounted: function mounted() {
     Event.$on('showGraph', this.PresentModal);
-    jquery__WEBPACK_IMPORTED_MODULE_3___default()("#modal").on('hide.bs.modal', this.ResetModal);
+    jquery__WEBPACK_IMPORTED_MODULE_4___default()("#modal").on('hide.bs.modal', this.ResetModal);
   }
 });
 
@@ -285,45 +297,28 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    GetNewsData: function GetNewsData() {
-      var _this = this;
-
-      axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("https://cryptocontrol.io/api/v1/public/news?language=en", {
-        'headers': {
-          'x-api-key': "ca309c24e5710df683fcfbeb52ebd9fd"
-        }
-      }).then(function (response) {
-        _this.data = response.data;
-
-        _this.data.forEach(function (news) {
-          news.publishedAt = moment__WEBPACK_IMPORTED_MODULE_0___default()(news.publishedAt).format('LL');
-        });
-
-        console.log(_this.data);
+    // Handle news data when received
+    NewsDataReceived: function NewsDataReceived(response) {
+      this.data = response.data;
+      this.data.forEach(function (news) {
+        news.publishedAt = moment__WEBPACK_IMPORTED_MODULE_0___default()(news.publishedAt).format('LL');
       });
+      console.log(this.data);
     }
   },
   mounted: function mounted() {
-    this.GetNewsData();
-  }
-  /*
-      _id: (...)
-      hotness: 73233.99238355865
-      activityHotness: (...)
-      primaryCategory: (...)
-      words: (...)
-      similarArticles: (...)
-      coins: (...)
-      description: (...)
-      publishedAt: (...)
-      title: (...)
-      url: (...)
-      source: (...)
-      thumbnail: (...)
-      sourceDomain: (...)
-      originalImageUrl: (...)
-  */
+    var _this = this;
 
+    axios__WEBPACK_IMPORTED_MODULE_1___default.a.get("https://cryptocontrol.io/api/v1/public/news?language=en", {
+      'headers': {
+        'x-api-key': "ca309c24e5710df683fcfbeb52ebd9fd"
+      }
+    }).then(function (response) {
+      return _this.NewsDataReceived(response);
+    })["catch"](function (response) {
+      return console.log(response);
+    });
+  }
 });
 
 /***/ }),
@@ -390,7 +385,8 @@ __webpack_require__.r(__webpack_exports__);
   name: "coinportfolio",
   data: function data() {
     return {
-      myCoins: []
+      myCoins: [],
+      noData: false
     };
   },
   methods: {
@@ -418,6 +414,8 @@ __webpack_require__.r(__webpack_exports__);
 
       axios__WEBPACK_IMPORTED_MODULE_0___default.a.post("/mycoins", formData).then(function (response) {
         return _this.CoinAmountUpdated(response, myCoin);
+      })["catch"](function (response) {
+        return console.log(response);
       });
     },
     // When coin amount has been updated
@@ -434,6 +432,7 @@ __webpack_require__.r(__webpack_exports__);
       console.log("Succesfully updated coin amount to: " + newAmount + "!"); // Update local count
 
       myCoin.count = newAmount;
+      Vue.$refs.notifications.AddMessage("Succesfully updated " + myCoin.name + " amount to: " + newAmount, "alert-success", true);
     },
     // When user wants to remove a coin
     RemoveCoin: function RemoveCoin(coinId) {
@@ -453,6 +452,8 @@ __webpack_require__.r(__webpack_exports__);
 
       axios__WEBPACK_IMPORTED_MODULE_0___default.a["delete"]("/mycoins/" + myCoin.coin_id).then(function (response) {
         return _this2.CoinRemoved(response);
+      })["catch"](function (response) {
+        return console.log(response);
       });
     },
     // When coin has been removed
@@ -469,9 +470,11 @@ __webpack_require__.r(__webpack_exports__);
 
       this.myCoins.splice(this.myCoins.findIndex(function (coin) {
         return coin.coin_id == coinId;
-      }), 1); // No more coins, redirect user
+      }), 1);
+      console.log("Succesfully removed coin!");
+      Vue.$refs.notifications.AddMessage("Succesfully removed coin from your portfolio!", "alert-success", true); // No more coins, redirect user
 
-      if (myCoins.length == 0) this.RedirectUser();
+      if (this.myCoins.length == 0) this.RedirectUser();
     },
     // Retrieved my coins
     MyCoinsRetrieved: function MyCoinsRetrieved(response) {
@@ -481,6 +484,7 @@ __webpack_require__.r(__webpack_exports__);
       this.myCoins = response.data; // No coins retrieved, redirect user
 
       if (this.myCoins == undefined || this.myCoins.length == 0) {
+        this.noData = true;
         this.RedirectUser();
         return;
       }
@@ -496,6 +500,8 @@ __webpack_require__.r(__webpack_exports__);
 
       axios__WEBPACK_IMPORTED_MODULE_0___default.a.get(coinCapUrl).then(function (response) {
         return _this3.CoinDataRetrieved(response);
+      })["catch"](function (response) {
+        return console.log(response);
       });
     },
     // When coin data retrieved, add data from coins to my coin array
@@ -519,8 +525,15 @@ __webpack_require__.r(__webpack_exports__);
       this.$forceUpdate();
       console.log("Retrieved data for my coins successfully!");
     },
+    // Show message to user and redirect them after 5 seconds
     RedirectUser: function RedirectUser() {
-      window.location.href = "/";
+      console.log("No coins! Redirecting user!");
+      console.log(Vue.$refs);
+      Vue.$refs.notifications.AddMessage("You have no coins! Add them from the crypto table by clicking a coin and setting amount there! Redirecting in 5 seconds...", "alert-warning", false); // Redirect after 5 secs
+
+      setTimeout(function () {
+        window.location.href = "/";
+      }, 10000);
     }
   },
   mounted: function mounted() {
@@ -528,6 +541,8 @@ __webpack_require__.r(__webpack_exports__);
 
     axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/mycoins").then(function (response) {
       return _this5.MyCoinsRetrieved(response);
+    })["catch"](function (response) {
+      return console.log(response);
     });
   }
 });
@@ -593,6 +608,38 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
+    // When initial coin data has been received, handle data + initialize web socket
+    CoinDataReceived: function CoinDataReceived(response) {
+      this.coins = response.data.data;
+      console.log(this.coins); // Normalize values to 2 decimals
+
+      this.coins.forEach(function (coin) {
+        coin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
+        coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
+        coin.changePercent24Hr = parseFloat(coin.changePercent24Hr).toFixed(2);
+        coin.volumeUsd24Hr = parseFloat(coin.volumeUsd24Hr).toFixed(2);
+        coin.supply = parseFloat(coin.supply).toFixed(2);
+      });
+      this.InitializeWebSocket();
+    },
+    // Initializes web socket for live updated prices
+    InitializeWebSocket: function InitializeWebSocket() {
+      var _this = this;
+
+      var assets = []; // Constructs list of all assets, using coin id + ','
+
+      this.coins.forEach(function (coin) {
+        assets.push(coin.id + ',');
+      }); // Init websocket from adress with all 200 assets
+
+      var priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets); // On price update, update prices
+
+      priceUpdate.onmessage = function (msg) {
+        return _this.UpdatePrices(JSON.parse(msg.data));
+      };
+
+      ;
+    },
     // Emits show graph event with corresponding coin
     ShowGraph: function ShowGraph(coin) {
       console.log("Raising show graph event for coin: " + coin);
@@ -617,17 +664,13 @@ __webpack_require__.r(__webpack_exports__);
         if (coin != null) coin.priceUsd = prices[key];
       }
     },
+    // When user scrolls, check if reached the bottom and load more coins if he has
     OnScroll: function OnScroll() {
-      var _this = this;
-
-      window.onscroll = function () {
-        if (window.scrollY + window.innerHeight > document.body.scrollHeight - 1) {
-          _this.LoadMore();
-        }
-      };
+      if (window.scrollY + window.innerHeight > document.body.scrollHeight - 1) this.LoadMoreCoins();
     },
-    LoadMore: function LoadMore() {
-      console.log("Loading more images!");
+    // Load more coins
+    LoadMoreCoins: function LoadMoreCoins() {
+      console.log("Loading more coins!");
     }
   },
   computed: {
@@ -662,35 +705,73 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this3 = this;
 
-    this.OnScroll(); // Retrieve initial coin data + initialize web socket when done
+    window.onscroll = function () {
+      return _this3.OnScroll();
+    }; // Retrieve initial coin data + initialize web socket when done
+
 
     axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("https://api.coincap.io/v2/assets").then(function (response) {
-      _this3.coins = response.data.data;
-      console.log(_this3.coins); // Normalize values to 2 decimals
-
-      _this3.coins.forEach(function (coin) {
-        coin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
-        coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
-        coin.changePercent24Hr = parseFloat(coin.changePercent24Hr).toFixed(2);
-        coin.volumeUsd24Hr = parseFloat(coin.volumeUsd24Hr).toFixed(2);
-        coin.supply = parseFloat(coin.supply).toFixed(2);
-      });
-
-      var assets = []; // Constructs list of all assets, using coin id + ','
-
-      _this3.coins.forEach(function (coin) {
-        assets.push(coin.id + ',');
-      }); // Init websocket from adress with all 200 assets
-
-
-      var priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets); // On price update, update prices
-
-      priceUpdate.onmessage = function (msg) {
-        return _this3.UpdatePrices(JSON.parse(msg.data));
-      };
-
-      ;
+      return _this3.CoinDataReceived(response);
+    })["catch"](function (response) {
+      return console.log(response);
     });
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/notifications.vue?vue&type=script&lang=js&":
+/*!************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/notifications.vue?vue&type=script&lang=js& ***!
+  \************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: "notifications",
+  data: function data() {
+    return {
+      messages: []
+    };
+  },
+  methods: {
+    // Adds a message to messages array to notify user of whatever
+    AddMessage: function AddMessage(message, type, dismissable) {
+      var _this = this;
+
+      console.log("Showing new message to user!");
+      var newMessage = []; // Set message data
+
+      newMessage.dismissable = dismissable;
+      newMessage.id = this.messages.length + message;
+      newMessage.text = message;
+      newMessage.type = type; // Add message to array
+
+      this.messages.push(newMessage);
+      setTimeout(function () {
+        _this.RemoveMessage(newMessage.id);
+      }, 5000);
+    },
+    //Removes a message from array
+    RemoveMessage: function RemoveMessage(id) {
+      console.log("Removing message due to timeout!");
+      this.messages.splice(this.messages.findIndex(function (message) {
+        return message.id == id;
+      }), 1);
+    }
   }
 });
 
@@ -1019,130 +1100,140 @@ var render = function() {
               _vm._m(0)
             ]),
             _vm._v(" "),
-            _c("div", { staticClass: "modal-body row" }, [
-              _c("div", { staticClass: "col-sm-3" }, [
-                _c("div", { staticClass: "card" }, [
-                  _c("div", { staticClass: "card-body" }, [
-                    _c("h5", { staticClass: "card-title text-success" }, [
-                      _vm._v("Price")
-                    ]),
-                    _vm._v(" "),
-                    _c("p", { staticClass: "card-text" }, [
-                      _vm._v("$ " + _vm._s(_vm.coin.priceUsd))
-                    ])
-                  ])
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-3" }, [
-                _c("div", { staticClass: "card" }, [
-                  _c("div", { staticClass: "card-body" }, [
-                    _c("h5", { staticClass: "card-title text-success" }, [
-                      _vm._v("Market cap")
-                    ]),
-                    _vm._v(" "),
-                    _c("p", { staticClass: "card-text" }, [
-                      _vm._v("$ " + _vm._s(_vm.coin.marketCapUsd))
-                    ])
-                  ])
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-3" }, [
-                _c("div", { staticClass: "card" }, [
-                  _c("div", { staticClass: "card-body" }, [
-                    _c("h5", { staticClass: "card-title text-success" }, [
-                      _vm._v("Supply")
-                    ]),
-                    _vm._v(" "),
-                    _c("p", { staticClass: "card-text" }, [
-                      _vm._v(_vm._s(_vm.coin.supply))
-                    ])
-                  ])
-                ])
-              ]),
-              _vm._v(" "),
-              _c("div", { staticClass: "col-sm-3" }, [
-                _c("div", { staticClass: "card" }, [
-                  _c("div", { staticClass: "card-body" }, [
-                    _c("h5", { staticClass: "card-title text-success" }, [
-                      _vm._v("Volume")
-                    ]),
-                    _vm._v(" "),
-                    _c("p", { staticClass: "card-text" }, [
-                      _vm._v(_vm._s(_vm.coin.volumeUsd24Hr))
-                    ])
-                  ])
-                ])
-              ]),
-              _vm._v(" "),
-              _vm.loggedin
-                ? _c(
-                    "div",
-                    {
-                      staticClass:
-                        "input-group col-md-6 justify-content-center mt-3 mb-3"
-                    },
-                    [
-                      _c("input", {
-                        ref: "amount",
-                        staticClass: "form-control",
-                        attrs: {
-                          value: "",
-                          type: "text",
-                          placeholder: "Amount",
-                          "aria-label": "Amount"
-                        }
-                      }),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "input-group-append" }, [
-                        _c(
-                          "button",
-                          {
-                            staticClass: "btn btn-outline-success",
-                            attrs: { type: "button" },
-                            on: {
-                              click: function($event) {
-                                return _vm.UpdateCoinAmount()
-                              }
-                            }
-                          },
-                          [_vm._v("Set # owned")]
-                        )
+            _c(
+              "div",
+              { staticClass: "modal-body row" },
+              [
+                _c("div", { staticClass: "col-sm-3" }, [
+                  _c("div", { staticClass: "card" }, [
+                    _c("div", { staticClass: "card-body" }, [
+                      _c("h5", { staticClass: "card-title text-success" }, [
+                        _vm._v("Price")
                       ]),
                       _vm._v(" "),
-                      _vm._m(1)
-                    ]
-                  )
-                : _vm._e(),
-              _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "col-md-12" },
-                [
-                  _vm.chartData.labels.length
-                    ? _c("line-chart", {
-                        attrs: {
-                          "chart-data": _vm.chartData,
-                          options: _vm.options
-                        }
-                      })
-                    : _vm._e()
-                ],
-                1
-              ),
-              _vm._v(" "),
-              !_vm.chartData.labels.length
-                ? _c(
-                    "div",
-                    {
-                      staticClass:
-                        "d-flex col-md-12 justify-content-center mt-3"
-                    },
-                    [_vm._m(2)]
-                  )
-                : _vm._e()
-            ])
+                      _c("p", { staticClass: "card-text" }, [
+                        _vm._v("$ " + _vm._s(_vm.coin.priceUsd))
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-3" }, [
+                  _c("div", { staticClass: "card" }, [
+                    _c("div", { staticClass: "card-body" }, [
+                      _c("h5", { staticClass: "card-title text-success" }, [
+                        _vm._v("Market cap")
+                      ]),
+                      _vm._v(" "),
+                      _c("p", { staticClass: "card-text" }, [
+                        _vm._v("$ " + _vm._s(_vm.coin.marketCapUsd))
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-3" }, [
+                  _c("div", { staticClass: "card" }, [
+                    _c("div", { staticClass: "card-body" }, [
+                      _c("h5", { staticClass: "card-title text-success" }, [
+                        _vm._v("Supply")
+                      ]),
+                      _vm._v(" "),
+                      _c("p", { staticClass: "card-text" }, [
+                        _vm._v(_vm._s(_vm.coin.supply))
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("div", { staticClass: "col-sm-3" }, [
+                  _c("div", { staticClass: "card" }, [
+                    _c("div", { staticClass: "card-body" }, [
+                      _c("h5", { staticClass: "card-title text-success" }, [
+                        _vm._v("Volume")
+                      ]),
+                      _vm._v(" "),
+                      _c("p", { staticClass: "card-text" }, [
+                        _vm._v(_vm._s(_vm.coin.volumeUsd24Hr))
+                      ])
+                    ])
+                  ])
+                ]),
+                _vm._v(" "),
+                _vm.loggedin
+                  ? _c(
+                      "div",
+                      {
+                        staticClass:
+                          "input-group col-md-6 justify-content-center mt-3 mb-3"
+                      },
+                      [
+                        _c("input", {
+                          ref: "amount",
+                          staticClass: "form-control",
+                          attrs: {
+                            value: "",
+                            type: "text",
+                            placeholder: "Amount",
+                            "aria-label": "Amount"
+                          }
+                        }),
+                        _vm._v(" "),
+                        _c("div", { staticClass: "input-group-append" }, [
+                          _c(
+                            "button",
+                            {
+                              staticClass: "btn btn-outline-success",
+                              attrs: { type: "button" },
+                              on: {
+                                click: function($event) {
+                                  return _vm.UpdateCoinAmount()
+                                }
+                              }
+                            },
+                            [_vm._v("Set # owned")]
+                          )
+                        ]),
+                        _vm._v(" "),
+                        _vm._m(1)
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "col-md-12" },
+                  [
+                    _vm.chartData.labels.length
+                      ? _c("line-chart", {
+                          attrs: {
+                            "chart-data": _vm.chartData,
+                            options: _vm.options
+                          }
+                        })
+                      : _vm._e()
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                !_vm.chartData.labels.length
+                  ? _c(
+                      "div",
+                      {
+                        staticClass:
+                          "d-flex col-md-12 justify-content-center mt-3"
+                      },
+                      [_vm._m(2)]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("notifications", {
+                  ref: "notifications",
+                  staticClass: "col-md-12 mt-4"
+                })
+              ],
+              1
+            )
           ])
         ]
       )
@@ -1304,7 +1395,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "col-md-12" }, [
+  return _c("div", { ref: "these", staticClass: "col-md-12" }, [
     _c("table", { staticClass: "bg-light table table-bordered" }, [
       _vm._m(0),
       _vm._v(" "),
@@ -1332,7 +1423,7 @@ var render = function() {
             _c("td", [_vm._v(_vm._s(coin.count))]),
             _vm._v(" "),
             _c("td", [
-              _c("div", { staticClass: "input-group mb-3" }, [
+              _c("div", { staticClass: "input-group" }, [
                 _c("input", {
                   ref: "amount-" + coin.coin_id,
                   refInFor: true,
@@ -1384,7 +1475,7 @@ var render = function() {
       )
     ]),
     _vm._v(" "),
-    !_vm.myCoins.length
+    !_vm.myCoins.length && !_vm.noData
       ? _c("div", { staticClass: "d-flex justify-content-center" }, [_vm._m(1)])
       : _vm._e()
   ])
@@ -1640,6 +1731,65 @@ render._withStripped = true
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/notifications.vue?vue&type=template&id=ad8086a6&":
+/*!****************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/notifications.vue?vue&type=template&id=ad8086a6& ***!
+  \****************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c(
+    "div",
+    _vm._l(_vm.messages, function(message) {
+      return _c(
+        "div",
+        {
+          key: message.id,
+          staticClass: "alert alert-dismissible fade show",
+          class: message.type,
+          attrs: { role: "alert" }
+        },
+        [
+          _vm._v("\n        " + _vm._s(message.text) + "\n        "),
+          message.dismissable
+            ? _c(
+                "button",
+                {
+                  staticClass: "close",
+                  attrs: {
+                    type: "button",
+                    "data-dismiss": "alert",
+                    "aria-label": "Close"
+                  }
+                },
+                [
+                  _c("span", { attrs: { "aria-hidden": "true" } }, [
+                    _vm._v("×")
+                  ])
+                ]
+              )
+            : _vm._e()
+        ]
+      )
+    }),
+    0
+  )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./resources/js/LineChart.js":
 /*!***********************************!*\
   !*** ./resources/js/LineChart.js ***!
@@ -1680,10 +1830,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var bootstrap__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(bootstrap__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _components_coinportfolio__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/coinportfolio */ "./resources/js/components/coinportfolio.vue");
-/* harmony import */ var _components_cointable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/cointable */ "./resources/js/components/cointable.vue");
-/* harmony import */ var _components_coinmodal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/coinmodal */ "./resources/js/components/coinmodal.vue");
-/* harmony import */ var _components_coinnews__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/coinnews */ "./resources/js/components/coinnews.vue");
+/* harmony import */ var _components_notifications__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/notifications */ "./resources/js/components/notifications.vue");
+/* harmony import */ var _components_coinportfolio__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/coinportfolio */ "./resources/js/components/coinportfolio.vue");
+/* harmony import */ var _components_cointable__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./components/cointable */ "./resources/js/components/cointable.vue");
+/* harmony import */ var _components_coinmodal__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./components/coinmodal */ "./resources/js/components/coinmodal.vue");
+/* harmony import */ var _components_coinnews__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./components/coinnews */ "./resources/js/components/coinnews.vue");
+
 
 
 
@@ -1694,13 +1846,14 @@ __webpack_require__.r(__webpack_exports__);
 
 window.Event = new vue__WEBPACK_IMPORTED_MODULE_2___default.a();
 axios__WEBPACK_IMPORTED_MODULE_0___default.a.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-new vue__WEBPACK_IMPORTED_MODULE_2___default.a({
+window.Vue = new vue__WEBPACK_IMPORTED_MODULE_2___default.a({
   el: '#root',
   components: {
-    coinportfolio: _components_coinportfolio__WEBPACK_IMPORTED_MODULE_3__["default"],
-    cointable: _components_cointable__WEBPACK_IMPORTED_MODULE_4__["default"],
-    coinmodal: _components_coinmodal__WEBPACK_IMPORTED_MODULE_5__["default"],
-    coinnews: _components_coinnews__WEBPACK_IMPORTED_MODULE_6__["default"]
+    notifications: _components_notifications__WEBPACK_IMPORTED_MODULE_3__["default"],
+    coinportfolio: _components_coinportfolio__WEBPACK_IMPORTED_MODULE_4__["default"],
+    cointable: _components_cointable__WEBPACK_IMPORTED_MODULE_5__["default"],
+    coinmodal: _components_coinmodal__WEBPACK_IMPORTED_MODULE_6__["default"],
+    coinnews: _components_coinnews__WEBPACK_IMPORTED_MODULE_7__["default"]
   }
 });
 
@@ -1977,6 +2130,75 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_cointable_vue_vue_type_template_id_23a343a2___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_cointable_vue_vue_type_template_id_23a343a2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/notifications.vue":
+/*!***************************************************!*\
+  !*** ./resources/js/components/notifications.vue ***!
+  \***************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _notifications_vue_vue_type_template_id_ad8086a6___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./notifications.vue?vue&type=template&id=ad8086a6& */ "./resources/js/components/notifications.vue?vue&type=template&id=ad8086a6&");
+/* harmony import */ var _notifications_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./notifications.vue?vue&type=script&lang=js& */ "./resources/js/components/notifications.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _notifications_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _notifications_vue_vue_type_template_id_ad8086a6___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _notifications_vue_vue_type_template_id_ad8086a6___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/notifications.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/notifications.vue?vue&type=script&lang=js&":
+/*!****************************************************************************!*\
+  !*** ./resources/js/components/notifications.vue?vue&type=script&lang=js& ***!
+  \****************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_notifications_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./notifications.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/notifications.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_notifications_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/notifications.vue?vue&type=template&id=ad8086a6&":
+/*!**********************************************************************************!*\
+  !*** ./resources/js/components/notifications.vue?vue&type=template&id=ad8086a6& ***!
+  \**********************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_notifications_vue_vue_type_template_id_ad8086a6___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./notifications.vue?vue&type=template&id=ad8086a6& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/notifications.vue?vue&type=template&id=ad8086a6&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_notifications_vue_vue_type_template_id_ad8086a6___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_notifications_vue_vue_type_template_id_ad8086a6___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 
