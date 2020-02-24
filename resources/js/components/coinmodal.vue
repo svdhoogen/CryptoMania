@@ -2,6 +2,7 @@
     <div id="modal" class="modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
+                <!-- Modal header -->
                 <div class="modal-header">
                     <h2 class="text-bold text-success">{{ coin.name }} ({{ coin.symbol }})</h2>
                     
@@ -9,43 +10,22 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+
+                <!-- Modal body -->
                 <div class="modal-body row">
-                    <div class="col-sm-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title text-success">Price</h5>
-                                <p class="card-text">$ {{ coin.priceUsd }}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Coin price -->
+                    <card title="Price" :body="coin.priceUsd"></card>
 
-                    <div class="col-sm-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title text-success">Market cap</h5>
-                                <p class="card-text">$ {{ coin.marketCapUsd }}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Coin market cap -->
+                    <card title="Market cap" :body="coin.marketCapUsd"></card>
 
-                    <div class="col-sm-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title text-success">Supply</h5>
-                                <p class="card-text">{{ coin.supply }}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Coin supply -->
+                    <card title="Supply" :body="coin.supply"></card>
 
-                    <div class="col-sm-3">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title text-success">Volume</h5>
-                                <p class="card-text">{{ coin.volumeUsd24Hr }}</p>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Coin volume -->
+                    <card title="Volume" :body="coin.volumeUsd24Hr"></card>
 
+                    <!-- Coin portfolio adding logic -->
                     <div v-if="loggedin" class="input-group col-md-6 justify-content-center mt-3 mb-3">
                         <input :ref="'amount'" class="form-control" value="" type="text" placeholder="Amount" aria-label="Amount">
 
@@ -58,9 +38,8 @@
                         </div>
                     </div>
 
-                    <div class="col-md-12">
-                        <line-chart v-if="chartData.labels.length" :chart-data="chartData" :options="options"></line-chart>
-                    </div>
+                    <!-- Coin price chart -->
+                    <line-chart v-if="chartData.labels.length" class="col-md-12" :chart-data="chartData" :options="options"></line-chart>
 
                     <!-- Loading spinner animation -->
                     <div class="d-flex col-md-12 justify-content-center mt-3" v-if="!chartData.labels.length">
@@ -69,6 +48,7 @@
                         </div>
                     </div>
 
+                    <!-- Feedback notifications -->
                     <notifications class="col-md-12 mt-4" ref="notifications"></notifications>
                 </div>
             </div>
@@ -81,15 +61,16 @@
     import LineChart from "../LineChart.js";
     import moment from "moment";
     import Axios from "axios";
+    import card from "./card";
     import $ from "jquery";
 
     export default {
         name: "coinmodal",
 
-        components: { LineChart, notifications },
+        components: { LineChart, notifications, card },
 
         props: {
-            loggedin: String
+            loggedin: Boolean
         },
 
         data() {
@@ -113,42 +94,9 @@
         },
 
         methods: {
-            // Handle coin history when received
-            CoinHistoryReceived (response) {
-                console.log(response);
-                
-                for (var index = response.data.data.length - 1; index > 0; index -= 7) {
-                    this.chartData.labels.push(moment(response.data.data[index].time).format('LL'));
-                    this.chartData.datasets[0].data.push(response.data.data[index].priceUsd);
-                }
-
-                this.chartData.labels.reverse();
-                this.chartData.datasets[0].data.reverse();
-
-                console.log("Succesfully set chart data!");
-                console.log(this.chartData);
-            },
-
-            // Handle my coin data when received
-            MyCoinDataReceived(response) {
-                console.log(response);
-
-                var amount = response.data;
-
-                if (amount == undefined || isNaN(amount) || parseFloat(amount) <= 0) {
-                    console.log("ERROR: Tried to parse received coin count, but value was empty, not a valid float or <= 0!");
-                    return;
-                }
-
-                console.log("Succesfully set coin count!");
-
-                // Update count
-                this.$refs['amount'].value = amount;
-            },
-
-            // Present modal to user
+            // Present modal to user for coin
             PresentModal(coin) {
-                // Update current coin
+                // Set current coin
                 this.coin = coin;
 
                 console.log("Requesting coin history for coin: " + this.coin.id);
@@ -158,9 +106,10 @@
                     .then((response) => this.CoinHistoryReceived(response))
                     .catch((response) => console.log(response));
 
-                // Get my coin data
+                // Get my coin data, if logged in
                 if (this.loggedin) {
                     console.log("Logged in so requestion my coin count for: " + this.coin.id);
+
                     Axios.get("/mycoins/" + coin.id)
                         .then((response) => this.MyCoinDataReceived(response))
                         .catch((response) => console.log(response));
@@ -172,24 +121,60 @@
                 $('#modal').modal('show');
             },
 
+            // Handle coin history when received
+            CoinHistoryReceived (response) {        
+                // Add coin price data for every seventh day to chart data
+                for (var index = response.data.data.length - 1; index > 0; index -= 7) {
+                    this.chartData.labels.push(moment(response.data.data[index].time).format('LL'));
+                    this.chartData.datasets[0].data.push(response.data.data[index].priceUsd);
+                }
+
+                // Reverse data to ascending date
+                this.chartData.labels.reverse();
+                this.chartData.datasets[0].data.reverse();
+
+                console.log("Succesfully set chart price data!");
+            },
+
+            // Handle my coin amount when received
+            MyCoinDataReceived(response) {
+                // Get owned amount
+                var amount = response.data;
+
+                // Check if amount is valid
+                if (amount == undefined || isNaN(amount) || parseFloat(amount) <= 0) {
+                    console.log("ERROR: Tried to parse received coin count, but value was empty, not a valid float or <= 0!");
+                    return;
+                }
+
+                // Set amount owned
+                this.$refs.amount.value = amount;
+
+                console.log("Succesfully set owned coin amount!");
+            },
+
             // Reset modal completely
             ResetModal() {
-                // Reset amount
-                this.$refs['amount'].value = "";
-
-                // Reset coin
-                this.coin = [];
-
                 // Reset chart data
                 this.chartData.labels = [];
                 this.chartData.datasets[0].data = [];
 
+                // Reset coin
+                this.coin = [];
+
+                // Reset amount owned
+                if (this.$refs.amount != null)
+                    this.$refs.amount.value = "";
+
+                // Clear messages
+                this.$refs.notifications.ClearMessages();
+
                 console.log("Hiding modal!!!!!")
             },
 
-            // When user wants to update coin amount
+            // Update coin owned amount on user request
             UpdateCoinAmount() {
-                // Retrieve new value form input
+                // Retrieve new amount form input
                 var newAmount = this.$refs['amount'].value;
 
                 // Check if new amount is valid
@@ -204,7 +189,7 @@
                 var formData = new FormData();
                 formData.append("count", newAmount);
 
-                // Send post request to update coin amount
+                // Send request to update coin owned amount
                 Axios.post("/mycoins/" + this.coin.id, formData)
                     .then((response) => this.CoinAmountUpdated(response, this.coin.id))
                     .catch((response) => console.log(response));
@@ -212,21 +197,19 @@
 
             // When coin amount has been updated
             CoinAmountUpdated(response, coinId) {
-                console.log(response);
-
                 // Get new amount
                 var newAmount = response.data;
 
-                // Check if amount is valid
+                // Check if new amount is valid
                 if (newAmount == undefined || newAmount == '' || isNaN(newAmount) || parseFloat(newAmount) <= 0 || this.coin.id != coinId) {
                     console.log("ERROR: Tried to parse new coin amount, but returned value isn't valid or a new coin is shown!");
                     return;
                 }
 
                 // Update count
-                this.$refs['amount'].value = newAmount;
+                this.$refs.amount.value = newAmount;
                 
-            
+                // Show message to user
                 this.$refs.notifications.AddMessage("You now own " + newAmount + " coins of id coinId!", "alert-success", true);
                 
                 console.log("Succesfully updated coin amount to: " + newAmount + "!");
@@ -234,8 +217,10 @@
         },
 
         mounted() {
+            // When show graph event fires, present modal
             Event.$on('showGraph', this.PresentModal);
 
+            // Reset modal when modal is dismissing
             $("#modal").on('hide.bs.modal', this.ResetModal);
         }
     }

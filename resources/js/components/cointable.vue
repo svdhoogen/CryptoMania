@@ -1,8 +1,11 @@
 <template>
     <div class="col-md-12">
+        <!-- Search box -->
         <input class="form-control col-md-3 mb-3" v-model="filter" type="text" placeholder="Search" aria-label="Search"/>
 
+        <!-- Crypto coin table -->
         <table id="table-coin" class="bg-light table table-bordered table-hover">
+            <!-- Table header -->
             <thead class="thead-dark">
                 <tr>
                     <th class="text-center border-success bg-green" @click="SortTable('rank')">Rank</th>
@@ -13,6 +16,8 @@
                     <th class="text-center border-success bg-green" @click="SortTable('changePercent24Hr')">% 24hr</th>
                 </tr>
             </thead>
+
+            <!-- Table body -->
             <tbody>
                 <tr v-for="coin in sortedCoins" :key="coin.rank" @click="ShowGraph(coin)">
                     <td>{{ coin.rank }}</td>
@@ -43,6 +48,7 @@
         data() {
             return {
                 coins: [],
+                requestOffset: 0,
                 sort: 'rank',
                 sortDir:'asc',
                 filter:''
@@ -50,51 +56,20 @@
         },
 
         methods: {
-            // When initial coin data has been received, handle data + initialize web socket
-            CoinDataReceived(response) {
-                this.coins = response.data.data;
-
-                console.log(this.coins);
-
-                // Normalize values to 2 decimals
-                this.coins.forEach(coin => {
-                    coin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
-                    coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
-                    coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
-                    coin.volumeUsd24Hr =  parseFloat(coin.volumeUsd24Hr).toFixed(2);
-                    coin.supply =  parseFloat(coin.supply).toFixed(2);
-                });
-
-                this.InitializeWebSocket();
-            },
-
-            // Initializes web socket for live updated prices
-            InitializeWebSocket() {
-                var assets = [];
-
-                // Constructs list of all assets, using coin id + ','
-                this.coins.forEach(coin => { assets.push(coin.id + ','); })
-
-                // Init websocket from adress with all 200 assets
-                const priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets);
-
-                // On price update, update prices
-                priceUpdate.onmessage = (msg) => this.UpdatePrices(JSON.parse(msg.data));;
-            },
-
-            // Emits show graph event with corresponding coin
+            // Emits show graph event for requested coin
             ShowGraph(coin) {
                 console.log("Raising show graph event for coin: " + coin);
+
                 Event.$emit('showGraph', coin);
             },
 
-            // Updates the table with a new sort
+            // Updates current table sort
             SortTable(newSort) {
                 // If same sort, reverse order
                 if (newSort === this.sort)
                     this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
 
-                // Else reset to ascending
+                // Else default to ascending
                 else
                     this.sortDir = 'asc';
 
@@ -102,19 +77,7 @@
                 this.sort = newSort;
             },
 
-            // Updates price on new price received
-            UpdatePrices(prices) {
-                for (var key in prices) {
-                    // Find coin by id
-                    var coin = this.coins.find(coin => coin.id === key);
-
-                    // Update price if coin found
-                    if (coin != null)
-                        coin.priceUsd = prices[key]
-                }
-            },
-
-            // When user scrolls, check if reached the bottom and load more coins if he has
+            // When user scrolls to bottom, load more coins
             OnScroll() {
                 if (window.scrollY + window.innerHeight > document.body.scrollHeight - 1)
                     this.LoadMoreCoins();
@@ -122,25 +85,84 @@
 
             // Load more coins
             LoadMoreCoins() {
-                console.log("Loading more coins!");
+                console.log("Loading more coins! Offset: " + this.offset);
+
+                // Get coin data for current offset
+                Axios.get("https://api.coincap.io/v2/assets?offset=" + this.requestOffset * 100)
+                    .then((response) => this.CoinDataReceived(response))
+                    .catch((response) => console.log(response));
+            },
+
+            // Handle coin data when received and initialize web socket
+            CoinDataReceived(response) {
+                console.log("Received response for coin data! Adding data to coins!");
+
+                // Request offset up
+                this.requestOffset++;
+
+                // Get new coins
+                var newCoins = response.data.data;
+
+                // Normalize values and add each coin to coins
+                newCoins.forEach(coin => {
+                    // Eight decimals for price
+                    coin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
+
+                    // Two decimals for other values
+                    coin.changePercent24Hr =  parseFloat(coin.changePercent24Hr).toFixed(2);
+                    coin.volumeUsd24Hr =  parseFloat(coin.volumeUsd24Hr).toFixed(2);
+                    coin.marketCapUsd = parseFloat(coin.marketCapUsd).toFixed(2);
+                    coin.supply =  parseFloat(coin.supply).toFixed(2);
+
+                    // Push coin to coins
+                    this.coins.push(coin);
+                });
+
+                // Initialize web socket for new coins
+                this.InitializeWebSocket(newCoins);
+            },
+
+            // Init web socket to live update coin prices
+            InitializeWebSocket(newCoins) {
+                // Id's of new coins
+                var assets = [];
+
+                // Constructs list of all assets, using coin id + ','
+                newCoins.forEach(coin => { assets.push(coin.id + ','); })
+
+                // Create web socket for assets
+                const priceUpdate = new WebSocket('wss://ws.coincap.io/prices?assets=' + assets);
+
+                // On price update, update prices
+                priceUpdate.onmessage = (msg) => this.UpdatePrices(JSON.parse(msg.data));;
+            },
+
+            // Updates price when new price is received
+            UpdatePrices(prices) {
+                for (var key in prices) {
+                    // Find coin by id
+                    var coin = this.coins.find(coin => coin.id === key);
+
+                    // Update coin price
+                    if (coin != null)
+                        coin.priceUsd = prices[key]
+                }
             }
         },
 
         computed:{
-            // Reactive array of coins sorted by current configuration
+            // Reactive array of coins, sorted by current order and search term
             sortedCoins() {
+                // Get coins
                 var filteredCoins = this.coins;
 
+                // Filter by search term
                 if (this.filter != '')
                     filteredCoins = this.coins.filter(coin => coin.name.toLowerCase().trim().includes(this.filter.toLowerCase().trim()));
-                   
                 
-                console.log(this.filter);
-
-                console.log(filteredCoins);
-
-                return filteredCoins.sort((a, b) => {
-                    if (this.sort == 'name' || this.sort == 'symbol') {
+                // Return filtered coins, sorted as strings
+                if (this.sort == 'name' || this.sort == 'symbol') {
+                    return filteredCoins.sort((a, b) => {
                         let modifier = 1;
 
                         // Descending, reverse order
@@ -157,8 +179,11 @@
 
                         // Strings are equal
                         return 0;
-                    }
-                    
+                    });
+                }
+                
+                // Return filtered coins, sorted as int
+                return filteredCoins.sort((a, b) => {
                     // Return sorting order
                     if (this.sortDir == 'asc')
                         return a[this.sort] - b[this.sort];
@@ -169,12 +194,11 @@
         },
 
         mounted() {
+            // Subscribe to on scroll event
             window.onscroll = () => this.OnScroll();
 
-            // Retrieve initial coin data + initialize web socket when done
-            Axios.get("https://api.coincap.io/v2/assets")
-                .then((response) => this.CoinDataReceived(response))
-                .catch((response) => console.log(response));
+            // Load initial coins
+            this.LoadMoreCoins();
         }
     }
 </script>
