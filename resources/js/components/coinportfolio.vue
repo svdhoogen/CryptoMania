@@ -1,7 +1,7 @@
 <template>
     <div class="col-md-12" ref="these">
         <!-- Crypto portfolio table -->
-        <table class="bg-light table table-bordered">
+        <table class="bg-light table table-bordered table-responsive-sm">
             <!-- Table header -->
             <thead class="thead-dark">
                 <tr>
@@ -111,7 +111,7 @@
                     var myCoin = this.myCoins.find(myCoin => myCoin.coin_id === coin.id);
 
                     // Set data for coin if found
-                    if (myCoin == null) {
+                    if (myCoin != null) {
                         myCoin.name = coin.name;
                         myCoin.symbol = coin.symbol;
                         myCoin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);

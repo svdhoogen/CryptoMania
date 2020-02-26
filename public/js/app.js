@@ -475,7 +475,7 @@ __webpack_require__.r(__webpack_exports__);
         }); // Set data for coin if found
 
 
-        if (myCoin == null) {
+        if (myCoin != null) {
           myCoin.name = coin.name;
           myCoin.symbol = coin.symbol;
           myCoin.priceUsd = parseFloat(coin.priceUsd).toFixed(8);
@@ -1153,7 +1153,7 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "col-sm-3" }, [
+  return _c("div", { staticClass: "col-lg-3 mt-2" }, [
     _c("div", { staticClass: "card" }, [
       _c("div", { staticClass: "card-body" }, [
         _c("h5", { staticClass: "card-title text-success" }, [
@@ -1462,84 +1462,88 @@ var render = function() {
     "div",
     { ref: "these", staticClass: "col-md-12" },
     [
-      _c("table", { staticClass: "bg-light table table-bordered" }, [
-        _vm._m(0),
-        _vm._v(" "),
-        _c(
-          "tbody",
-          _vm._l(_vm.myCoins, function(coin) {
-            return _c("tr", { key: coin.coin_id }, [
-              _c("td", [_vm._v(_vm._s(coin.name) + " ")]),
-              _vm._v(" "),
-              _c("td", [
-                _c("img", {
-                  staticClass: "mr-2",
-                  attrs: {
-                    height: "20",
-                    src: "images/coin-logos/" + coin.coin_id + ".png"
-                  }
-                }),
-                _vm._v(_vm._s(coin.symbol))
-              ]),
-              _vm._v(" "),
-              _c("td", [_vm._v(_vm._s(coin.priceUsd))]),
-              _vm._v(" "),
-              _c("td", [_vm._v(_vm._s(coin.priceUsd * coin.count))]),
-              _vm._v(" "),
-              _c("td", [_vm._v(_vm._s(coin.count))]),
-              _vm._v(" "),
-              _c("td", [
-                _c("div", { staticClass: "input-group" }, [
-                  _c("input", {
-                    ref: "amount-" + coin.coin_id,
-                    refInFor: true,
-                    staticClass: "form-control",
+      _c(
+        "table",
+        { staticClass: "bg-light table table-bordered table-responsive-sm" },
+        [
+          _vm._m(0),
+          _vm._v(" "),
+          _c(
+            "tbody",
+            _vm._l(_vm.myCoins, function(coin) {
+              return _c("tr", { key: coin.coin_id }, [
+                _c("td", [_vm._v(_vm._s(coin.name) + " ")]),
+                _vm._v(" "),
+                _c("td", [
+                  _c("img", {
+                    staticClass: "mr-2",
                     attrs: {
-                      type: "text",
-                      placeholder: "Amount",
-                      "aria-label": "Amount"
-                    },
-                    domProps: { value: coin.count }
+                      height: "20",
+                      src: "images/coin-logos/" + coin.coin_id + ".png"
+                    }
                   }),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "input-group-append" }, [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-outline-success",
-                        attrs: { type: "button" },
-                        on: {
-                          click: function($event) {
-                            return _vm.UpdateCoinAmount(coin.coin_id)
-                          }
-                        }
+                  _vm._v(_vm._s(coin.symbol))
+                ]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(coin.priceUsd))]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(coin.priceUsd * coin.count))]),
+                _vm._v(" "),
+                _c("td", [_vm._v(_vm._s(coin.count))]),
+                _vm._v(" "),
+                _c("td", [
+                  _c("div", { staticClass: "input-group" }, [
+                    _c("input", {
+                      ref: "amount-" + coin.coin_id,
+                      refInFor: true,
+                      staticClass: "form-control",
+                      attrs: {
+                        type: "text",
+                        placeholder: "Amount",
+                        "aria-label": "Amount"
                       },
-                      [_vm._v("Set # owned")]
-                    )
-                  ]),
-                  _vm._v(" "),
-                  _c("div", { staticClass: "input-group-append" }, [
-                    _c(
-                      "button",
-                      {
-                        staticClass: "btn btn-outline-danger",
-                        attrs: { type: "button" },
-                        on: {
-                          click: function($event) {
-                            return _vm.RemoveCoin(coin.coin_id)
+                      domProps: { value: coin.count }
+                    }),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "input-group-append" }, [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-outline-success",
+                          attrs: { type: "button" },
+                          on: {
+                            click: function($event) {
+                              return _vm.UpdateCoinAmount(coin.coin_id)
+                            }
                           }
-                        }
-                      },
-                      [_vm._v("Remove")]
-                    )
+                        },
+                        [_vm._v("Set # owned")]
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "input-group-append" }, [
+                      _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-outline-danger",
+                          attrs: { type: "button" },
+                          on: {
+                            click: function($event) {
+                              return _vm.RemoveCoin(coin.coin_id)
+                            }
+                          }
+                        },
+                        [_vm._v("Remove")]
+                      )
+                    ])
                   ])
                 ])
               ])
-            ])
-          }),
-          0
-        )
-      ]),
+            }),
+            0
+          )
+        ]
+      ),
       _vm._v(" "),
       !_vm.myCoins.length && !_vm.noData
         ? _c("div", { staticClass: "d-flex justify-content-center" }, [
@@ -1643,7 +1647,8 @@ var render = function() {
     _c(
       "table",
       {
-        staticClass: "bg-light table table-bordered table-hover",
+        staticClass:
+          "bg-light table table-bordered table-hover table-responsive-sm",
         attrs: { id: "table-coin" }
       },
       [

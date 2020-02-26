@@ -4,7 +4,7 @@
         <input class="form-control col-md-3 mb-3" v-model="filter" type="text" placeholder="Search" aria-label="Search"/>
 
         <!-- Crypto coin table -->
-        <table id="table-coin" class="bg-light table table-bordered table-hover">
+        <table id="table-coin" class="bg-light table table-bordered table-hover table-responsive-sm">
             <!-- Table header -->
             <thead class="thead-dark">
                 <tr>

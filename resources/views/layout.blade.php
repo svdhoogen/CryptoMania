@@ -6,6 +6,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Crypto Mania')</title>
 
+    <meta name="format-detection" content="telephone=no"/>
+
     <link rel="stylesheet" href="/css/app.css">
 
     <!-- Bootstrap CSS -->

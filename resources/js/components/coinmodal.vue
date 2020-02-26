@@ -26,7 +26,7 @@
                     <card title="Volume" :body="coin.volumeUsd24Hr"></card>
 
                     <!-- Coin portfolio adding logic -->
-                    <div v-if="loggedin" class="input-group col-md-6 justify-content-center mt-3 mb-3">
+                    <div v-if="loggedin" class="input-group col-md-10 justify-content-center mt-3 mb-3">
                         <input :ref="'amount'" class="form-control" value="" type="text" placeholder="Amount" aria-label="Amount">
 
                         <div class="input-group-append">
