@@ -1234,7 +1234,7 @@ var render = function() {
                       "div",
                       {
                         staticClass:
-                          "input-group col-md-6 justify-content-center mt-3 mb-3"
+                          "input-group col-md-10 justify-content-center mt-3 mb-3"
                       },
                       [
                         _c("input", {
